@@ -1,12 +1,15 @@
 package com.biprom.bram.ui.views.dashboard;
 
+import com.vaadin.server.ThemeResource;
 import com.vaadin.shared.ui.ContentMode;
+import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
 
 public class BoardLabel extends Label {
 
 	private String header;
 	private String content;
+
 
 	public BoardLabel(String header, String content) {
 		super("", ContentMode.HTML);

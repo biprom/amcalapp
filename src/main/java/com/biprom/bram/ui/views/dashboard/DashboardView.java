@@ -1,33 +1,14 @@
 package com.biprom.bram.ui.views.dashboard;
 
-import java.time.LocalDate;
-import java.time.Month;
 import java.time.MonthDay;
 import java.time.Year;
-import java.time.YearMonth;
-import java.time.format.TextStyle;
-import java.util.Locale;
-import java.util.Map.Entry;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
 
-import com.vaadin.shared.ui.grid.HeightMode;
+import com.vaadin.server.ClassResource;
 import com.vaadin.ui.Label;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.vaadin.addon.charts.Chart;
-import com.vaadin.addon.charts.model.ChartType;
-import com.vaadin.addon.charts.model.Configuration;
-import com.vaadin.addon.charts.model.DataSeries;
-import com.vaadin.addon.charts.model.DataSeriesItem;
-import com.vaadin.addon.charts.model.Labels;
-import com.vaadin.addon.charts.model.ListSeries;
-import com.vaadin.addon.charts.model.Marker;
-import com.vaadin.addon.charts.model.PlotOptionsColumn;
-import com.vaadin.addon.charts.model.PlotOptionsLine;
-import com.vaadin.addon.charts.model.YAxis;
 import com.vaadin.board.Row;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
@@ -35,7 +16,6 @@ import com.vaadin.spring.annotation.SpringView;
 import com.biprom.bram.backend.data.DashboardData;
 import com.biprom.bram.backend.data.DeliveryStats;
 import com.biprom.bram.backend.data.entity.Order;
-import com.biprom.bram.backend.data.entity.Product;
 import com.biprom.bram.backend.service.HerstellingService;
 import com.biprom.bram.ui.components.HerstellingGrid;
 import com.biprom.bram.ui.navigation.NavigationManager;
@@ -49,7 +29,7 @@ import com.biprom.bram.ui.views.orderedit.OrderEditView;
  * is added to the class, you should consider splitting out a presenter.
  */
 @SpringView
-public class DashboardView extends DashboardViewDesign implements View {
+public class DashboardView extends AtelierDesign implements View {
 
 	private static final String DELIVERIES = "Deliveries";
 
@@ -70,6 +50,9 @@ public class DashboardView extends DashboardViewDesign implements View {
 	private final BoardLabel inoxLabel = new BoardLabel("Inox- werk", "4", "tomorrow");
 	private final BoardBox inoxBox = new BoardBox( inoxLabel );
 
+	private final BoardLabel syncImage = new BoardLabel("Update", "1", "tomorrow");
+	private final BoardBox syncBox = new BoardBox( syncImage );
+
 	private final HerstellingGrid herstellingGrid;
 	private final HerstellingGrid voorbereidingGrid;
 	private final HerstellingGrid demontageGrid;
@@ -88,6 +71,8 @@ public class DashboardView extends DashboardViewDesign implements View {
 		this.demontageGrid = demontageGrid;
 		this.voorbereidingGrid = voorbereidingGrid;
 		this.inoxGrid = inoxGrid;
+
+		syncButton.setIcon( new ClassResource( "/images/icon-96.png" ) );
 
 		herstellingGrid.setHeight( "600px" );
 		demontageGrid.setHeight( "600px" );
@@ -121,9 +106,12 @@ public class DashboardView extends DashboardViewDesign implements View {
 	public void init() {
 		setResponsive(true);
 
-		Row row = board.addRow(demontageBox, voorbereidingBox, herstellingBox,
+		Row rowStats = board.addRow(demontageBox, voorbereidingBox, herstellingBox,
 				inoxBox);
-		row.addStyleName("board-row-group");
+		rowStats.addStyleName("board-row-group");
+
+		Row rowUpdate = boardUpdate.addRow(syncBox);
+		rowUpdate.addStyleName("board-row-group");
 
 		herstellingGrid.setId("dueGrid");
 		herstellingGrid.setSizeFull();
