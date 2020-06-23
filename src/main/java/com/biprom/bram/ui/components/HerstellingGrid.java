@@ -1,31 +1,32 @@
 package com.biprom.bram.ui.components;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Locale;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
 
-import com.vaadin.shared.ui.grid.HeightMode;
+import com.biprom.bram.backend.data.entity.mongodbEntities.DetailTicket;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.util.HtmlUtils;
 import org.vaadin.spring.annotation.PrototypeScope;
 
 import com.vaadin.spring.annotation.SpringComponent;
-import com.biprom.bram.backend.data.entity.Customer;
 import com.biprom.bram.backend.data.entity.Order;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.renderers.HtmlRenderer;
 
 @SpringComponent
 @PrototypeScope
-public class HerstellingGrid extends Grid<Order> {
+public class HerstellingGrid extends Grid<DetailTicket> {
 
 	@Autowired
-	private HerstellingDataProvider dataProvider;
+	private HerstellingDataProvider herstellingDataProvider;
+
+	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
 
 	public HerstellingGrid() {
 
@@ -37,30 +38,26 @@ public class HerstellingGrid extends Grid<Order> {
 		setStyleGenerator( HerstellingGrid::getRowStyle);
 
 		// Due column
-		Column<Order, String> dueColumn = addColumn(
-				order -> twoRowCell(getTimeHeader(order.getDueDate()), String.valueOf(order.getDueTime())),
+		Column<DetailTicket, String> dueColumn = addColumn(
+				detailTicket -> twoRowCell(getTimeHeader(detailTicket.getDetailAanmaakDatum().toLocalDate()), String.valueOf(detailTicket.getDetailAanmaakDatum().format( formatter ))),
 				new HtmlRenderer());
 		dueColumn.setSortProperty("dueDate", "dueTime");
 		dueColumn.setStyleGenerator(order -> "due");
 
 		// Summary column
-		Column<Order, String> summaryColumn = addColumn(order -> {
-			Customer customer = order.getCustomer();
-			return twoRowCell(customer.getFullName(), getOrderSummary(order));
+		Column<DetailTicket, String> summaryColumn = addColumn(detailTicket -> {
+			String klant = detailTicket.getOpdrachtgever();
+			return twoRowCell(klant, getOrderSummary(detailTicket));
 		}, new HtmlRenderer()).setExpandRatio(1).setSortProperty("customer.fullName").setMinimumWidthFromContent(false);
 		summaryColumn.setStyleGenerator(order -> "summary");
 
 		this.setHeight( "100%");
 	}
 
-	public void filterGrid(String searchTerm, boolean includePast) {
-		dataProvider.setFilter(searchTerm);
-		dataProvider.setIncludePast(includePast);
-	}
 
 	@PostConstruct
 	protected void init() {
-		setDataProvider(dataProvider);
+
 	}
 
 	/**
@@ -89,28 +86,39 @@ public class HerstellingGrid extends Grid<Order> {
 		}
 	}
 
-	private static String getRowStyle(Order order) {
-		String style = order.getState().name().toLowerCase();
+	private static String getRowStyle(DetailTicket detailTicket) {
+//		String style = detailTicket.getState().name().toLowerCase();
+//
+//		long days = LocalDate.now().until(order.getDueDate(), ChronoUnit.DAYS);
+//		if (days == 0) {
+//			style += " today";
+//		} else if (days == 1) {
+//			style += " tomorrow";
+//		}
+//
+//		return style;
 
-		long days = LocalDate.now().until(order.getDueDate(), ChronoUnit.DAYS);
-		if (days == 0) {
-			style += " today";
-		} else if (days == 1) {
-			style += " tomorrow";
-		}
-
-		return style;
+		return "";
 	}
 
-	private static String getOrderSummary(Order order) {
-		Stream<String> quantityAndName = order.getItems().stream()
-				.map(item -> item.getQuantity() + "x " + item.getProduct().getName());
-		return quantityAndName.collect(Collectors.joining(", "));
+	private static String getOrderSummary(DetailTicket detailTicket) {
+		return detailTicket.getOmschrijvingVraagKlacht();
 	}
 
 	private static String twoRowCell(String header, String content) {
-		return "<div class=\"header\">" + HtmlUtils.htmlEscape(header) + "</div><div class=\"content\">"
-				+ HtmlUtils.htmlEscape(content) + "</div>";
+		try {
+			return "<div class=\"header\">" + HtmlUtils.htmlEscape( header ) + "</div><div class=\"content\">"
+					+ HtmlUtils.htmlEscape( content ) + "</div>";
+		}
+		catch (Exception e){
+			return "<div class=\"header\">" + HtmlUtils.htmlEscape( "N/A" ) + "</div><div class=\"content\">"
+					+ HtmlUtils.htmlEscape( "N/A" ) + "</div>";
+		}
 	}
+
+	public void setData(List<DetailTicket> receivedDetails){
+		this.setItems( receivedDetails );
+	}
+
 
 }

@@ -52,7 +52,6 @@ public class StorefrontView extends StorefrontViewDesign implements View {
 	 */
 	@PostConstruct
 	public void init() {
-		list.addSelectionListener(e -> selectedOrder(e.getFirstSelectedItem().get()));
 		newOrder.addClickListener(e -> newOrder());
 		searchButton.addClickListener(e -> search(searchField.getValue(), includePast.getValue()));
 
@@ -69,7 +68,7 @@ public class StorefrontView extends StorefrontViewDesign implements View {
 	}
 
 	public void search(String searchTerm, boolean includePast) {
-		filterGrid(searchTerm, includePast);
+
 		String parameters = PARAMETER_SEARCH + "=" + searchTerm;
 		if (includePast) {
 			parameters += "&" + PARAMETER_INCLUDE_PAST;
@@ -90,12 +89,6 @@ public class StorefrontView extends StorefrontViewDesign implements View {
 		Map<String, String> params = event.getParameterMap();
 		String searchTerm = params.getOrDefault(PARAMETER_SEARCH, "");
 		boolean includePast = params.containsKey(PARAMETER_INCLUDE_PAST);
-		filterGrid(searchTerm, includePast);
 	}
 
-	public void filterGrid(String searchTerm, boolean includePast) {
-		list.filterGrid(searchTerm, includePast);
-		searchField.setValue(searchTerm);
-		this.includePast.setValue(includePast);
-	}
 }

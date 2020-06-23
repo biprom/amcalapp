@@ -16,7 +16,7 @@ import com.vaadin.spring.annotation.UIScope;
 import com.biprom.bram.ui.navigation.NavigationManager;
 import com.biprom.bram.ui.views.admin.product.ProductAdminView;
 import com.biprom.bram.ui.views.admin.user.UserAdminView;
-import com.biprom.bram.ui.views.dashboard.DashboardView;
+import com.biprom.bram.ui.views.dashboard.AtelierView;
 import com.biprom.bram.ui.views.storefront.StorefrontView;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.UI;
@@ -45,7 +45,7 @@ public class MainView extends MainViewDesign implements ViewDisplay {
 
 	@PostConstruct
 	public void init() {
-		attachNavigation(storefront, DashboardView.class);
+		attachNavigation(storefront, AtelierView.class);
 		attachNavigation(dashboard, StorefrontView.class);
 		attachNavigation(users, UserAdminView.class);
 		attachNavigation(products, ProductAdminView.class);

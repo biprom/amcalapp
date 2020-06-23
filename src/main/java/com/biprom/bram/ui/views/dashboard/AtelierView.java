@@ -2,9 +2,12 @@ package com.biprom.bram.ui.views.dashboard;
 
 import java.time.MonthDay;
 import java.time.Year;
+import java.util.List;
 
 import javax.annotation.PostConstruct;
 
+import com.biprom.bram.backend.data.entity.mongodbEntities.DetailTicket;
+import com.biprom.bram.ui.components.HerstellingDataProvider;
 import com.vaadin.server.ClassResource;
 import com.vaadin.ui.Label;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,14 +32,14 @@ import com.biprom.bram.ui.views.orderedit.OrderEditView;
  * is added to the class, you should consider splitting out a presenter.
  */
 @SpringView
-public class DashboardView extends AtelierDesign implements View {
+public class AtelierView extends AtelierDesign implements View {
 
 	private static final String DELIVERIES = "Deliveries";
 
 	private static final String BOARD_ROW_PANELS = "board-row-panels";
 
 	private final NavigationManager navigationManager;
-	private final HerstellingService herstellingService;
+	private final HerstellingDataProvider herstellingDataProvider;
 
 	private final BoardLabel demontageLabel = new BoardLabel("Demontage", "3", "today");
 	private final BoardBox demontageBox = new BoardBox( demontageLabel );
@@ -50,8 +53,11 @@ public class DashboardView extends AtelierDesign implements View {
 	private final BoardLabel inoxLabel = new BoardLabel("Inox- werk", "4", "tomorrow");
 	private final BoardBox inoxBox = new BoardBox( inoxLabel );
 
-	private final BoardLabel syncImage = new BoardLabel("Update", "1", "tomorrow");
-	private final BoardBox syncBox = new BoardBox( syncImage );
+	private final BoardButton syncButton = new BoardButton("SYNC");
+	private final BoardBox syncBox = new BoardBox( syncButton );
+
+	private final BoardLabel syncInfo = new BoardLabel("Update", "1", "tomorrow");
+	private final BoardBox syncInfoBox = new BoardBox( syncInfo );
 
 	private final HerstellingGrid herstellingGrid;
 	private final HerstellingGrid voorbereidingGrid;
@@ -59,40 +65,38 @@ public class DashboardView extends AtelierDesign implements View {
 	private final HerstellingGrid inoxGrid;
 
 	@Autowired
-	public DashboardView(NavigationManager navigationManager,
-						 HerstellingService herstellingService,
-						 HerstellingGrid herstellingGrid,
-						 HerstellingGrid voorbereidingGrid,
-						 HerstellingGrid demontageGrid,
-						 HerstellingGrid inoxGrid) {
+	public AtelierView(NavigationManager navigationManager,
+					   HerstellingDataProvider herstellingDataProvider,
+					   HerstellingGrid herstellingGrid,
+					   HerstellingGrid voorbereidingGrid,
+					   HerstellingGrid demontageGrid,
+					   HerstellingGrid inoxGrid) {
 		this.navigationManager = navigationManager;
-		this.herstellingService = herstellingService;
+		this.herstellingDataProvider = herstellingDataProvider;
 		this.herstellingGrid = herstellingGrid;
 		this.demontageGrid = demontageGrid;
 		this.voorbereidingGrid = voorbereidingGrid;
 		this.inoxGrid = inoxGrid;
-
-		syncButton.setIcon( new ClassResource( "/images/icon-96.png" ) );
 
 		herstellingGrid.setHeight( "600px" );
 		demontageGrid.setHeight( "600px" );
 		voorbereidingGrid.setHeight( "600px" );
 		inoxGrid.setHeight( "600px" );
 
+		Label labelHerstellen = new Label( "Te Herstellen" );
+		labelHerstellen.setStyleName( "h2" );
+		vLayoutGrid.addComponent( labelHerstellen);
+		vLayoutGrid.addComponent( herstellingGrid );
+
 		Label labelDemontage = new Label( "Demontage" );
 		labelDemontage.setStyleName( "h2" );
-		vLayoutGrid.addComponent( labelDemontage);
+		vLayoutGrid.addComponent( labelDemontage );
 		vLayoutGrid.addComponent( demontageGrid );
 
 		Label labelVoorbereiding = new Label( "Voorbereidig" );
 		labelVoorbereiding.setStyleName( "h2" );
 		vLayoutGrid.addComponent( labelVoorbereiding );
 		vLayoutGrid.addComponent( voorbereidingGrid );
-
-		Label labelHerstelling = new Label( "Herstelling" );
-		labelHerstelling.setStyleName( "h2" );
-		vLayoutGrid.addComponent( labelHerstelling );
-		vLayoutGrid.addComponent( herstellingGrid );
 
 		Label labelInox = new Label( "Inox" );
 		labelInox.setStyleName( "h2" );
@@ -110,24 +114,26 @@ public class DashboardView extends AtelierDesign implements View {
 				inoxBox);
 		rowStats.addStyleName("board-row-group");
 
-		Row rowUpdate = boardUpdate.addRow(syncBox);
+		Row rowUpdate = boardUpdate.addRow(syncBox, syncInfoBox);
 		rowUpdate.addStyleName("board-row-group");
 
 		herstellingGrid.setId("dueGrid");
 		herstellingGrid.setSizeFull();
+		herstellingGrid.setData( herstellingDataProvider.getAllDetailsToHerstel() );
 
-		herstellingGrid.addSelectionListener( e -> selectedOrder(e.getFirstSelectedItem().get()));
+		demontageGrid.setId("dueGrid");
+		demontageGrid.setSizeFull();
+		demontageGrid.setData( herstellingDataProvider.getAllDetailsToDemontage() );
+
+		voorbereidingGrid.setId("dueGrid");
+		voorbereidingGrid.setSizeFull();
+		voorbereidingGrid.setData( herstellingDataProvider.getAllDetailsToVoorbereiding() );
+
+
+
+		//herstellingGrid.addSelectionListener( e -> selectedOrder(e.getFirstSelectedItem().get()));
 	}
 
-	@Override
-	public void enter(ViewChangeEvent event) {
-		DashboardData data = fetchData();
-		updateLabels(data.getDeliveryStats());
-	}
-
-	private DashboardData fetchData() {
-		return herstellingService.getDashboardData(MonthDay.now().getMonthValue(), Year.now().getValue());
-	}
 	private void updateLabels(DeliveryStats deliveryStats) {
 		demontageLabel.setContent(deliveryStats.getDeliveredToday() + "/" + deliveryStats.getDueToday());
 		voorbereidingLabel.setContent(Integer.toString(deliveryStats.getNotAvailableToday()));

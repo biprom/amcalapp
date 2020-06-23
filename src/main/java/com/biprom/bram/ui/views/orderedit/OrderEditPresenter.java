@@ -107,14 +107,11 @@ public class OrderEditPresenter implements Serializable, HasLogger {
 			order.setDueTime(LocalTime.of(8, 00));
 			order.setPickupLocation(pickupLocationService.getDefault());
 		} else {
-			order = herstellingService.findOrder(id);
-			if (order == null) {
-				view.showNotFound();
-				return;
-			}
+			//order = herstellingService.findOrder(id);
+
 		}
 
-		refreshView(order);
+		//refreshView(order);
 	}
 
 	private void updateTotalSum() {
@@ -150,7 +147,7 @@ public class OrderEditPresenter implements Serializable, HasLogger {
 				throw new IllegalStateException(
 						"The next state button should never be enabled when the state does not follow the happy path");
 			}
-			herstellingService.changeState(order, nextState.get(), SecurityUtils.getCurrentUser(userService));
+			//herstellingService.changeState(order, nextState.get(), SecurityUtils.getCurrentUser(userService));
 			refresh(order.getId());
 		} else if (view.getMode() == Mode.CONFIRMATION) {
 			Order order = saveOrder();
@@ -180,12 +177,12 @@ public class OrderEditPresenter implements Serializable, HasLogger {
 	}
 
 	private void refresh(Long id) {
-		Order order = herstellingService.findOrder(id);
-		if (order == null) {
-			view.showNotFound();
-			return;
-		}
-		refreshView(order);
+//		Order order = herstellingService.findOrder(id);
+//		if (order == null) {
+//			view.showNotFound();
+//			return;
+//		}
+		//refreshView(order);
 
 	}
 
@@ -213,7 +210,7 @@ public class OrderEditPresenter implements Serializable, HasLogger {
 		try {
 			filterEmptyProducts();
 			Order order = view.getOrder();
-			return herstellingService.saveOrder(order, SecurityUtils.getCurrentUser(userService));
+			return null;
 		} catch (ValidationException e) {
 			// Should not get here if validation is setup properly
 			Notification.show("Please check the contents of the fields: " + e.getMessage(), Type.ERROR_MESSAGE);

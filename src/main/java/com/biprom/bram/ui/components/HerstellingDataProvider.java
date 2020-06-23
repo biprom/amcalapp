@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.biprom.bram.backend.data.entity.mongodbEntities.DetailTicket;
+import com.biprom.bram.backend.data.entity.mongodbEntities.MainTicket;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,49 +22,24 @@ import com.biprom.bram.backend.service.HerstellingService;
 
 @SpringComponent
 @PrototypeScope
-public class HerstellingDataProvider extends FilterablePageableDataProvider<Order, Object> {
+public class HerstellingDataProvider {
 
 	private final HerstellingService herstellingService;
-	private LocalDate filterDate = LocalDate.now().minusDays(1);
 
 	@Autowired
 	public HerstellingDataProvider(HerstellingService herstellingService) {
 		this.herstellingService = herstellingService;
 	}
 
-	@Override
-	protected Page<Order> fetchFromBackEnd(Query<Order, Object> query, Pageable pageable) {
-		return herstellingService.findAnyMatchingAfterDueDate(getOptionalFilter(), getOptionalFilterDate(), pageable);
+	public List<DetailTicket>getAllDetailsToHerstel(){
+		return herstellingService.getAllDetailsToHerstel();
 	}
 
-	private Optional<LocalDate> getOptionalFilterDate() {
-		if (filterDate == null) {
-			return Optional.empty();
-		} else {
-			return Optional.of(filterDate);
-		}
+	public List<DetailTicket>getAllDetailsToDemontage(){
+		return herstellingService.getAllDetailsToDemontage();
 	}
 
-	public void setIncludePast(boolean includePast) {
-		if (includePast) {
-			filterDate = null;
-		} else {
-			filterDate = LocalDate.now().minusDays(1);
-		}
-	}
-
-	@Override
-	protected int sizeInBackEnd(Query<Order, Object> query) {
-		return (int) herstellingService.countAnyMatchingAfterDueDate(getOptionalFilter(), getOptionalFilterDate());
-	}
-
-	@Override
-	protected List<QuerySortOrder> getDefaultSortOrders() {
-		List<QuerySortOrder> sortOrders = new ArrayList<>();
-		sortOrders.add(new QuerySortOrder("dueDate", SortDirection.ASCENDING));
-		sortOrders.add(new QuerySortOrder("dueTime", SortDirection.ASCENDING));
-		// id included only to always get a stable sort order
-		sortOrders.add(new QuerySortOrder("id", SortDirection.DESCENDING));
-		return sortOrders;
+	public List<DetailTicket>getAllDetailsToVoorbereiding(){
+		return herstellingService.getAllDetailsToVoorbereiding();
 	}
 }

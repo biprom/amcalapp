@@ -10,7 +10,7 @@ import com.vaadin.spring.internal.Conventions;
 import com.vaadin.spring.navigator.SpringNavigator;
 import com.biprom.bram.app.security.SecurityUtils;
 import com.biprom.bram.backend.data.Role;
-import com.biprom.bram.ui.views.dashboard.DashboardView;
+import com.biprom.bram.ui.views.dashboard.AtelierView;
 import com.biprom.bram.ui.views.storefront.StorefrontView;
 
 /**
@@ -61,7 +61,7 @@ public class NavigationManager extends SpringNavigator {
 			return;
 		}
 
-		navigateTo(SecurityUtils.isCurrentUserInRole(Role.ADMIN) ? DashboardView.class : StorefrontView.class);
+		navigateTo(SecurityUtils.isCurrentUserInRole(Role.ADMIN) ? AtelierView.class : StorefrontView.class);
 	}
 
 	/**

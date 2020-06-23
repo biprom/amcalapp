@@ -59,7 +59,7 @@ public class OrderHistory extends OrderHistoryDesign {
 		binder.bind(newCommentInput, "message");
 		commitNewComment.addClickListener(e -> {
 			if (binder.isValid()) {
-				addNewComment(newCommentInput.getValue());
+				//addNewComment(newCommentInput.getValue());
 			} else {
 				newCommentInput.focus();
 			}
@@ -69,10 +69,6 @@ public class OrderHistory extends OrderHistoryDesign {
 		addAction(new ClickShortcut(commitNewComment, KeyCode.ENTER, null));
 	}
 
-	public void addNewComment(String comment) {
-		herstellingService.addHistoryItem(order, comment, SecurityUtils.getCurrentUser(userService));
-		eventBus.publish(this, new OrderUpdatedEvent());
-	}
 
 	public void setOrder(Order order) {
 		this.order = order;
