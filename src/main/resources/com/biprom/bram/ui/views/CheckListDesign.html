@@ -1,0 +1,327 @@
+<!doctype html>
+<html>
+ <head>
+  <meta charset="UTF-8">
+  <meta name="design-properties" content="{&quot;RULERS_VISIBLE&quot;:true,&quot;GUIDELINES_VISIBLE&quot;:false,&quot;SNAP_TO_OBJECTS&quot;:true,&quot;SNAP_TO_GRID&quot;:true,&quot;SNAPPING_DISTANCE&quot;:10,&quot;GENERATE_GETTERS&quot;:false,&quot;JAVA_SOURCES_ROOT&quot;:&quot;src/main/java&quot;,&quot;THEME&quot;:&quot;apptheme&quot;}">
+  <meta name="vaadin-version" content="8.1.5">
+ </head>
+ <body>
+  <vaadin-vertical-layout>
+   <vaadin-label style-name="h2" plain-text _id="titleLabel"></vaadin-label>
+   <vaadin-label style-name="h3" plain-text _id="vraagKlantLabel"></vaadin-label>
+   <vaadin-check-box-group caption="Gedemonteerd door" style-name="horizontal" data-item-type="com.biprom.bram.backend.data.entity.mongodbEntities.Personeel" _id="checkbGroupTechniekers"></vaadin-check-box-group>
+   <vaadin-horizontal-layout caption="Toestel binnengebracht op" margin>
+    <vaadin-check-box-group style-name="horizontal" width-full data-item-type="java.lang.String" _id="cbgEUPallet">
+     <option item="EU - pallet">EU - pallet</option>
+     <option item="Pallet">Pallet</option>
+     <option item="Los">Los</option>
+    </vaadin-check-box-group>
+    <vaadin-label plain-text>
+      Andere 
+    </vaadin-label>
+    <vaadin-text-field _id="tfBinnengebrachtAndereManier" :middle :center></vaadin-text-field>
+   </vaadin-horizontal-layout>
+   <vaadin-horizontal-layout margin>
+    <vaadin-combo-box caption="Positie magazijn" data-item-type="java.lang.String" _id="cbPositieMagazijn">
+     <option item="1">Option 1</option>
+     <option item="2">Option 2</option>
+     <option item="3">Option 3</option>
+    </vaadin-combo-box>
+    <vaadin-text-field caption="Ander Positie" _id="tfAnderePositie"></vaadin-text-field>
+   </vaadin-horizontal-layout>
+   <vaadin-horizontal-layout width-full margin>
+    <vaadin-combo-box caption="Elektrische Aansluiting" data-item-type="java.lang.Integer" _id="cbElektrischeAansluiting"></vaadin-combo-box>
+    <vaadin-image _id="imgElektrischeAansluiting" :bottom :center></vaadin-image>
+    <vaadin-combo-box caption="Ontluchting" data-item-type="java.lang.Integer" _id="cbZijdeOntluchting"></vaadin-combo-box>
+    <vaadin-image _id="imgOntluchtingAansluiting" :bottom :center></vaadin-image>
+    <vaadin-combo-box caption="Montageplaten" data-item-type="java.lang.Integer" _id="cbMontagePlaten"></vaadin-combo-box>
+    <vaadin-image _id="imgMontagePlatenAansluiting" :bottom :center></vaadin-image>
+   </vaadin-horizontal-layout>
+   <vaadin-text-area caption="Bijkomend commentaar Pomp" width-full _id="taBijkomendCommentaarPomp"></vaadin-text-area>
+   <vaadin-horizontal-layout width-full margin>
+    <vaadin-text-field caption="Uitgebreid Pomptype" _id="tfUitGebreidPompType"></vaadin-text-field>
+    <vaadin-text-field caption="ArtikelNummer" _id="tfArtikelNummerPomp"></vaadin-text-field>
+    <vaadin-text-field caption="ProductDatum" _id="tfProductDatumPomp"></vaadin-text-field>
+    <vaadin-text-field caption="Serienummer" _id="tfSerieNummerPomp"></vaadin-text-field>
+    <vaadin-text-field caption="Land" _id="tfLandPomp"></vaadin-text-field>
+   </vaadin-horizontal-layout>
+   <vaadin-horizontal-layout caption="Test Meetgegevens" height="146px" margin>
+    <vaadin-text-field caption="Motortype" _id="tfMotorType"></vaadin-text-field>
+    <vaadin-text-field caption="Nominaal vermogen" _id="tfNominaalVermogen"></vaadin-text-field>
+    <vaadin-text-field caption="toerental" _id="tfToerental"></vaadin-text-field>
+    <vaadin-text-field caption="ArtikelNummer" _id="tfArtikelNummerMotor"></vaadin-text-field>
+    <vaadin-text-field caption="U driehoek" _id="tfUDriehoek"></vaadin-text-field>
+    <vaadin-text-field caption="U ster" _id="tfUSter"></vaadin-text-field>
+    <vaadin-vertical-layout size-auto>
+     <vaadin-check-box caption="Freq controller" _id="cbFreqController"></vaadin-check-box>
+     <vaadin-check-box caption="Niet standaard pomp" _id="cbNietStandardPomp"></vaadin-check-box>
+    </vaadin-vertical-layout>
+   </vaadin-horizontal-layout>
+   <vaadin-vertical-layout caption="Checklist Motor">
+    <vaadin-horizontal-layout>
+     <vaadin-text-field caption="ProductiedatumMotor" _id="tfProductieDatumMotor"></vaadin-text-field>
+     <vaadin-text-field caption="Isolatieweerstand" _id="tfIsolatieWeerstand"></vaadin-text-field>
+     <vaadin-text-field caption="RFase1" _id="tfRfase1"></vaadin-text-field>
+     <vaadin-text-field caption="RFase2" _id="tfRfase2"></vaadin-text-field>
+     <vaadin-text-field caption="RFase3" height="37px" _id="tfRfase3"></vaadin-text-field>
+    </vaadin-horizontal-layout>
+    <vaadin-horizontal-layout _id="hLaytoutMotorElektrischInOrde">
+     <vaadin-check-box-group style-name="horizontal" data-item-type="java.lang.String" _id="cbgMotorElektrischInOrde">
+      <option item="Moteur électrique OK">Motor Elektrisch in orde</option>
+      <option item="Moteur électrique NOK">Motor NIET Elektrisch in orde</option>
+      <option item="Moteur mécanique OK">Motor Mechanisch in orde</option>
+      <option item="Moteur mécanique NOK">Motor Mechanisch NIET in orde</option>
+     </vaadin-check-box-group>
+    </vaadin-horizontal-layout>
+   </vaadin-vertical-layout>
+   <vaadin-vertical-layout caption="Motor Elektrische eigenschappen" size-auto _id="vLayoutMotorElektrisch">
+    <vaadin-check-box-group style-name="horizontal" data-item-type="java.lang.String" _id="cbgIsolatieweerstand">
+     <option item="Option1">Isolatieweerstand OK</option>
+     <option item="La résistance d'isolement est infinie">Isolatieweerstand is oneindig</option>
+     <option item="Moteur à la masse">Motor aan massa</option>
+    </vaadin-check-box-group>
+    <vaadin-check-box-group style-name="horizontal" data-item-type="java.lang.String" _id="cbgWikkelingswaardes">
+     <option item="Résistance du bobinage OK">Wikkelingswaardes OK</option>
+     <option item="Résistance du bobinage NOK">Wikkelingswaardes NOK</option>
+    </vaadin-check-box-group>
+    <vaadin-check-box-group style-name="horizontal" data-item-type="java.lang.String" _id="cbgMotorVerbrand">
+     <option item="Moteur n'est pas brulé">Motor niet verbrand</option>
+     <option item="Moteur est brulé">Motor verbrand</option>
+    </vaadin-check-box-group>
+    <vaadin-check-box-group style-name="horizontal" data-item-type="java.lang.String" _id="cbgControlBox">
+     <option item="Option1">Controlbox NVT</option>
+     <option item="Controlbox OK">Controlbox OK</option>
+     <option item="Controlbox NOK">Controlbox Defect</option>
+     <option item="Eau dans le Controlbox">Water in Controlbox</option>
+    </vaadin-check-box-group>
+    <vaadin-horizontal-layout>
+     <vaadin-check-box-group style-name="horizontal" data-item-type="java.lang.String" _id="cbgWaterInMotor">
+      <option item="Option1">Geen Water in motor</option>
+      <option item="L'eau dans le moteur">water in motor</option>
+      <option item="Eau dans le câble moteur">Water in motorkabel</option>
+      <option item="Eau dans le thermo rétractable">Water in krimpmof</option>
+      <option item="Eau dans le câble submersible">Water in onderwaterkabel</option>
+      <option item="Eau dans le chambre d'huile">Water in de oliekamer</option>
+     </vaadin-check-box-group>
+     <vaadin-text-field _id="tfExtraCommentaarWaterInMotor"></vaadin-text-field>
+    </vaadin-horizontal-layout>
+    <vaadin-horizontal-layout>
+     <vaadin-check-box-group style-name="horizontal" data-item-type="java.lang.String" _id="cbgMotorkabel">
+      <option item="Cable de moteur OK">Motorkabel OK</option>
+      <option item="Cable de moteur endommagé">Motorkabel beschadigd</option>
+      <option item="Fiche de cable endommagé">Kabelfiche beschadigd</option>
+      <option item="Entree de cable endommagé">Kabeldoorgang beschadigd</option>
+     </vaadin-check-box-group>
+     <vaadin-text-field _id="tfCommentaarMotorkabel"></vaadin-text-field>
+    </vaadin-horizontal-layout>
+    <vaadin-check-box-group style-name="horizontal" data-item-type="java.lang.String" _id="cbgVochtInMotor">
+     <option item="Moteur est sec">Motor droog</option>
+     <option item="Eau dans le moteur">Water in motor</option>
+     <option item="Huile dans le moteur">Olie in motor</option>
+     <option item="Grasse dans le moteur">Vet in motor</option>
+     <option item="Salle dans le moteur">Vuil in motor</option>
+    </vaadin-check-box-group>
+   </vaadin-vertical-layout>
+   <vaadin-vertical-layout caption="Motor Mechanische eigenschappen" size-auto _id="vLayoutMotorMechanisch">
+    <vaadin-horizontal-layout>
+     <vaadin-check-box-group style-name="horizontal" data-item-type="java.lang.String" _id="cbgMotorLagers">
+      <option item="Option1">Motorlagers OK</option>
+      <option item="Les roulements font du bruit">Lagers lawaai</option>
+      <option item="Les roulements sont défectueux">Lagers defect</option>
+     </vaadin-check-box-group>
+     <vaadin-horizontal-layout>
+      <vaadin-label plain-text>
+        Lager AS : 
+      </vaadin-label>
+      <vaadin-text-field _id="tfLagerAsMotorCommentaar"></vaadin-text-field>
+      <vaadin-label plain-text>
+        Lager Vent : 
+      </vaadin-label>
+      <vaadin-text-field _id="tfLagerVentMotorCommentaar1"></vaadin-text-field>
+     </vaadin-horizontal-layout>
+    </vaadin-horizontal-layout>
+    <vaadin-check-box-group style-name="horizontal" data-item-type="java.lang.String" _id="cbgMotorDichtingen">
+     <option item="Option1">Motordichtingen OK</option>
+     <option item="Option2">Motordichtingen uitgezet</option>
+     <option item="Option3">Motordichtingen beschadigd</option>
+     <option item="Option4">Motordichtingen gesmolten</option>
+     <option item="Option5">Motordichtingen gescheurd</option>
+    </vaadin-check-box-group>
+    <vaadin-check-box-group style-name="horizontal" data-item-type="java.lang.String" _id="cbgVentilator">
+     <option item="Option1">Ventilator OK</option>
+     <option item="Couvercle de ventilateur est défectueux">Ventilatorkap defect</option>
+     <option item="ventilateur est défectueux">Ventilator defect</option>
+     <option item="Option4">Klemmenblok defect</option>
+     <option item="Option5">Klemmendeksel defect</option>
+    </vaadin-check-box-group>
+    <vaadin-check-box-group style-name="horizontal" data-item-type="java.lang.String" _id="cbgBeschadingMotor">
+     <option item="Option1">Geen defecten binnenwerk motor</option>
+     <option item="Rotor est endommagé">Rotor beschadigd</option>
+     <option item="Stator est endommagé">Stator defect</option>
+     <option item="bride DE est défectueux">Flens DE defect</option>
+     <option item="bride NDE est défectueux">Flens NDE defect</option>
+    </vaadin-check-box-group>
+   </vaadin-vertical-layout>
+   <vaadin-vertical-layout caption="Pompeigenschappen" size-auto>
+    <vaadin-check-box-group style-name="horizontal" data-item-type="java.lang.String" _id="cbgGarantie">
+     <option item="Garantie NON">Garantie NEEN</option>
+     <option item="Garantie OUI">Garantie JA</option>
+    </vaadin-check-box-group>
+    <vaadin-horizontal-layout>
+     <vaadin-check-box-group style-name="horizontal" data-item-type="java.lang.String" _id="cbgBinnengebrachtPomp">
+      <option item="Option1">Volledig en Gedemonteerd binnengebracht</option>
+      <option item="Pompe mal assemblée">Pomp verkeerd gemonteerd</option>
+      <option item="livrée démontée">Gedemonteerd binnengebracht</option>
+      <option item="pièces manquantes">Onderdelen ontbreken</option>
+     </vaadin-check-box-group>
+     <vaadin-text-field _id="tfCommentaarPompBinnengebracht"></vaadin-text-field>
+    </vaadin-horizontal-layout>
+    <vaadin-horizontal-layout>
+     <vaadin-check-box-group style-name="horizontal" data-item-type="java.lang.String" _id="cbgStaatPomp">
+      <option item="">Pomp in goede staat</option>
+      <option item="Pompe inaccessible">Pomp ondemonteerbaar</option>
+      <option item="Pompe en très mauvais état">In zeer slechte staat</option>
+      <option item="Pompe très difficile à démonter">Zeer moeilijk demonteerbaar</option>
+     </vaadin-check-box-group>
+     <vaadin-text-field _id="tfCommentaarPompDemonteerbaar"></vaadin-text-field>
+    </vaadin-horizontal-layout>
+    <vaadin-horizontal-layout>
+     <vaadin-check-box-group style-name="horizontal" data-item-type="java.lang.String" _id="cbgPrimaireAsafdichtingen">
+      <option item="Option1">Primaire asafdichting OK</option>
+      <option item="Garniture mécanique premier est épuisée">Primaire asafdichting ingelopen</option>
+      <option item="Garniture mécanique premier est endommagée">Primaire asafdichting beschadigd</option>
+      <option item="Garniture mécanique premier est usée">Primaire asafdichting versleten</option>
+      <option item="Garniture mécanique premier est éteint">Primaire asafdichting uitgezet</option>
+      <option item="Garniture mécanique premier est cassé">Primaire asafdichting gebarsten</option>
+     </vaadin-check-box-group>
+     <vaadin-text-field _id="tfPrimaireAsafdichtingCommentaar"></vaadin-text-field>
+    </vaadin-horizontal-layout>
+    <vaadin-horizontal-layout>
+     <vaadin-check-box-group style-name="horizontal" data-item-type="java.lang.String" _id="cbgSecundaireAsafdichtingen">
+      <option item="Option1">Secundaire asafdichting OK</option>
+      <option item="Garniture mécanique secundair est épuisée">Secundaire asafdichting ingelopen</option>
+      <option item="Garniture mécanique secundair est endommagée">Secundaire asafdichting beschadigd</option>
+      <option item="Garniture mécanique secundair est usée">Secundaire asafdichting versleten</option>
+      <option item="Garniture mécanique secundair est éteint">Secundaire asafdichting uitgezet</option>
+      <option item="Garniture mécanique secundair est cassé">Secundaire asafdichting gebarsten</option>
+     </vaadin-check-box-group>
+     <vaadin-text-field _id="tfSecundaireAsafdichtingCommentaar"></vaadin-text-field>
+    </vaadin-horizontal-layout>
+    <vaadin-horizontal-layout>
+     <vaadin-check-box-group style-name="horizontal" data-item-type="java.lang.String" _id="cbgPompas">
+      <option item="Option1">Pompas OK</option>
+      <option item="L'arbre de la pompe est épuisé">Pompas ingelopen</option>
+      <option item="L'arbre de la pompe corrosion perforante">Pompas Putcorrosie</option>
+      <option item="L'arbre de la pompe est endommagé">Pompas Beschadigd</option>
+      <option item="L'arbre de la pompe est usé">Pompas Versleten</option>
+      <option item="L'arbre de la pompe est cassé">Pompas Gebroken</option>
+     </vaadin-check-box-group>
+     <vaadin-text-field _id="tfPompasCommentaar"></vaadin-text-field>
+    </vaadin-horizontal-layout>
+    <vaadin-horizontal-layout>
+     <vaadin-check-box-group style-name="horizontal" data-item-type="java.lang.String" _id="cbgWaaiers">
+      <option item="Option1">Waaiers OK</option>
+      <option item="Les roues sont épuisées">Waaiers Ingelopen</option>
+      <option item="Les roues sont endommagées">Waaiers Beschadigd</option>
+      <option item="Les roues sont usées">Waaiers Versleten</option>
+      <option item="Les roues sont cassées">Waaiers Gebroken</option>
+     </vaadin-check-box-group>
+     <vaadin-text-field _id="tfWaaiersCommentaar"></vaadin-text-field>
+    </vaadin-horizontal-layout>
+    <vaadin-horizontal-layout>
+     <vaadin-check-box-group style-name="horizontal" data-item-type="java.lang.String" _id="cbgKamers">
+      <option item="Option1">Kamers OK</option>
+      <option item="Les chambres endommagées">Kamers beschadigd</option>
+      <option item="Les chambres cassées">Kamers Gebroken</option>
+      <option item="Les chambres épuisées">Kamers Versleten</option>
+     </vaadin-check-box-group>
+     <vaadin-text-field _id="tfKamersCommentaar"></vaadin-text-field>
+    </vaadin-horizontal-layout>
+    <vaadin-horizontal-layout>
+     <vaadin-check-box-group style-name="horizontal" data-item-type="java.lang.String" _id="cbgDichtingen">
+      <option item="Option1">Dichtingen OK</option>
+      <option item="Les joints sont expansés">Dichtingen Uitgezet</option>
+      <option item="Les joints sont endommagés">Dichtingen Beschadigd</option>
+      <option item="Les joints sont fondu">Dichtingen Gesmolten</option>
+      <option item="Les joints sont cassés">Dichtingen Gescheurd</option>
+     </vaadin-check-box-group>
+     <vaadin-text-field _id="tfDichtingenCommentaar"></vaadin-text-field>
+    </vaadin-horizontal-layout>
+    <vaadin-horizontal-layout>
+     <vaadin-check-box-group style-name="horizontal" data-item-type="java.lang.String" _id="cbgAantasting">
+      <option item="Option1">Geen aantasting</option>
+      <option item="Endommagement de la tête">Aantasting Kopstuk</option>
+      <option item="Endommagement du socle">Aantasting Voetstuk</option>
+      <option item="Endommagement de la chemise">Aantasting mantel</option>
+      <option item="Endommagement de des chambres">Aantasting kamers</option>
+     </vaadin-check-box-group>
+     <vaadin-text-field _id="tfAantastingCommentaar"></vaadin-text-field>
+    </vaadin-horizontal-layout>
+    <vaadin-horizontal-layout>
+     <vaadin-check-box-group style-name="horizontal" data-item-type="java.lang.String" _id="cbgLagers">
+      <option item="Option1">Lagers OK</option>
+      <option item="Les bagues de palier sont épuisées">Lagers ingelopen</option>
+      <option item="Les bagues de palier sont endommagées">Lagers beschadigd</option>
+      <option item="Les bagues de palier sont brisées">Lagers gebarsten</option>
+     </vaadin-check-box-group>
+     <vaadin-text-field _id="tfLagersCommentaar"></vaadin-text-field>
+    </vaadin-horizontal-layout>
+    <vaadin-horizontal-layout>
+     <vaadin-check-box-group style-name="horizontal" data-item-type="java.lang.String" _id="cbgSpaltringen">
+      <option item="Option1">Spaltringen OK</option>
+      <option item="Les bagues d'étanchéité sont épuisées">Spaltringen ingelopen</option>
+      <option item="Les bagues d'étanchéité sont endommagées">Spaltringen beschadigd</option>
+      <option item="Les bagues d'étanchéité sont cassées">Spaltringen gebarsten</option>
+     </vaadin-check-box-group>
+     <vaadin-text-field _id="tfSpaltRingenCommentaar"></vaadin-text-field>
+    </vaadin-horizontal-layout>
+    <vaadin-check-box-group style-name="horizontal" data-item-type="java.lang.String" _id="cbgBinnenwerk">
+     <option item="Option1">Binnenwerk OK</option>
+     <option item="La complète hydraulique interne est brisée">Binnenwerk volledig stukgedraaid</option>
+    </vaadin-check-box-group>
+    <vaadin-check-box-group style-name="horizontal" data-item-type="java.lang.String" _id="cbgVuilInPomp">
+     <option item="Option1">Geen vuil</option>
+     <option item="Sale dans la pompe">Vuil in pomp</option>
+     <option item="sable dans la pompe">zand in pomp</option>
+     <option item="chaux dans la pompe">kalk in pomp</option>
+     <option item="fer dans la pompe">ijzer in pomp</option>
+    </vaadin-check-box-group>
+    <vaadin-horizontal-layout>
+     <vaadin-check-box-group style-name="horizontal" data-item-type="java.lang.String" _id="cbgStatusPomp">
+      <option item="Option1">Geen oorzaak</option>
+      <option item="Pompe a tourné sec">Pomp drooggedraaid</option>
+      <option item="Pompe a cavitation">Pomp gecaviteerd</option>
+      <option item="Pompe est gelée">Pomp bevroren</option>
+      <option item="Pompe a tourné trop basse">Pomp te laag gedraaid</option>
+     </vaadin-check-box-group>
+     <vaadin-text-field _id="tfPompStatusCommentaar"></vaadin-text-field>
+    </vaadin-horizontal-layout>
+    <vaadin-check-box-group style-name="horizontal" data-item-type="java.lang.String" _id="cbgPompBehandeling">
+     <option item="Option1">Geen nabehandeling</option>
+     <option item="Option2">Herschilderen</option>
+     <option item="Option3">Zandstralen</option>
+     <option item="Option4">Geen logo!</option>
+    </vaadin-check-box-group>
+   </vaadin-vertical-layout>
+   <vaadin-horizontal-layout>
+    <vaadin-vertical-layout size-auto>
+     <vaadin-date-time-field caption="Datum Demontage" _id="dateDemontage"></vaadin-date-time-field>
+     <vaadin-text-field caption="Uren demontage" _id="tfUrenDemontage"></vaadin-text-field>
+     <vaadin-check-box caption="Bestekkosten aanrekenen ?" _id="checkbBestekkostenAanrekenen"></vaadin-check-box>
+    </vaadin-vertical-layout>
+    <vaadin-vertical-layout size-auto>
+     <vaadin-date-field caption="Hersteldatum" _id="datefHerstelDatum"></vaadin-date-field>
+     <vaadin-date-time-field caption="Uiterste Hersteldatum" _id="dtUitersteHerstelDatum"></vaadin-date-time-field>
+     <vaadin-text-field caption="Uren herstelling" _id="tfUrenHerstelling"></vaadin-text-field>
+     <vaadin-text-field caption="Uren reinigen" _id="tfUrenReinigen"></vaadin-text-field>
+     <vaadin-check-box caption="Herstelling Afgewerkt" description="Selectie na Herstellen pomp" _id="checkbHerstellingAfgewerkt"></vaadin-check-box>
+    </vaadin-vertical-layout>
+    <vaadin-vertical-layout size-auto>
+     <vaadin-text-field caption="Debiet [m3/h]" description="Debiet [m3/h]" _id="tfDebiet"></vaadin-text-field>
+     <vaadin-text-field caption="Druk [bar]" _id="tfDruk"></vaadin-text-field>
+     <vaadin-text-field caption="Druktest vuilwater [bar]" _id="tfDebietVuilWater"></vaadin-text-field>
+    </vaadin-vertical-layout>
+   </vaadin-horizontal-layout>
+  </vaadin-vertical-layout>
+ </body>
+</html>

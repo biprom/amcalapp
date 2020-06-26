@@ -6,6 +6,7 @@ import org.springframework.data.annotation.Id;
 import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -17,7 +18,7 @@ public class CheckListBestek {
 
     private String productieDatumMotor;
 
-    private Set<String> motorMechElektrInOrde;
+    private Set<String> motorMechElektrInOrde = new HashSet<>(  );
     private String Risolatie;
     private String Rfase1;
     private String Rfase2;
@@ -54,6 +55,7 @@ public class CheckListBestek {
     private Set<String> garantie;
 
     private Set<String> asafdichting;
+    private Set<String> secundaireAsafdichting = new HashSet<>(  );
     private String asafdichtingCommentaar;
 
     private Set<String> pompas;
@@ -135,7 +137,11 @@ public class CheckListBestek {
     private boolean pompMWGezandstraald;
     private boolean zuurbehandelingUitgevoerd;
 
+    private Set<String> controlBox = new HashSet<>(  );
+    private Set<String> motorKabel = new HashSet<>(  );
+    private Set<String> vochtInMotor = new HashSet<>(  );
 
+    private Set<String> motorDichtingen = new HashSet<>(  );
 
         public String getFields() {
             String returnString = "";
@@ -147,7 +153,6 @@ public class CheckListBestek {
                         Object value = f.get(this);
 
                         try{
-
                                 if((value.toString() != "")
                                         && (value.toString() != "[]")
                                         && (!value.toString().contains( "hersteldDoorList" ))
@@ -938,5 +943,45 @@ public class CheckListBestek {
 
     public void setZuurbehandelingUitgevoerd(boolean zuurbehandelingUitgevoerd) {
         this.zuurbehandelingUitgevoerd = zuurbehandelingUitgevoerd;
+    }
+
+    public Set<String> getControlBox() {
+        return controlBox;
+    }
+
+    public void setControlBox(Set<String> controlBox) {
+        this.controlBox = controlBox;
+    }
+
+    public Set<String> getMotorKabel() {
+        return motorKabel;
+    }
+
+    public void setMotorKabel(Set<String> motorKabel) {
+        this.motorKabel = motorKabel;
+    }
+
+    public Set<String> getVochtInMotor() {
+        return vochtInMotor;
+    }
+
+    public void setVochtInMotor(Set<String> vochtInMotor) {
+        this.vochtInMotor = vochtInMotor;
+    }
+
+    public Set<String> getMotorDichtingen() {
+        return motorDichtingen;
+    }
+
+    public void setMotorDichtingen(Set<String> motorDichtingen) {
+        this.motorDichtingen = motorDichtingen;
+    }
+
+    public Set<String> getSecundaireAsafdichting() {
+        return secundaireAsafdichting;
+    }
+
+    public void setSecundaireAsafdichting(Set<String> secundaireAsafdichting) {
+        this.secundaireAsafdichting = secundaireAsafdichting;
     }
 }

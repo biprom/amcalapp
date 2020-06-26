@@ -8,6 +8,7 @@ import javax.annotation.PostConstruct;
 
 import com.biprom.bram.backend.data.entity.mongodbEntities.DetailTicket;
 import com.biprom.bram.ui.components.HerstellingDataProvider;
+import com.biprom.bram.ui.views.checkList.CheckListView;
 import com.vaadin.server.ClassResource;
 import com.vaadin.ui.Label;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -129,9 +130,7 @@ public class AtelierView extends AtelierDesign implements View {
 		voorbereidingGrid.setSizeFull();
 		voorbereidingGrid.setData( herstellingDataProvider.getAllDetailsToVoorbereiding() );
 
-
-
-		//herstellingGrid.addSelectionListener( e -> selectedOrder(e.getFirstSelectedItem().get()));
+		herstellingGrid.addSelectionListener( e -> selectedOrder(e.getFirstSelectedItem().get()));
 	}
 
 	private void updateLabels(DeliveryStats deliveryStats) {
@@ -142,8 +141,8 @@ public class AtelierView extends AtelierDesign implements View {
 		inoxLabel.setContent(Integer.toString(deliveryStats.getDueTomorrow()));
 	}
 
-	public void selectedOrder(Order order) {
-		navigationManager.navigateTo(OrderEditView.class, order.getId());
+	public void selectedOrder(DetailTicket selectedDetail) {
+		navigationManager.navigateTo( CheckListView.class, selectedDetail.getamNummer(), selectedDetail.getOpdrachtgever());
 	}
 
-}
+	}

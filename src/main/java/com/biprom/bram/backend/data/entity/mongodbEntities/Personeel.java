@@ -140,4 +140,9 @@ public class Personeel {
     public void setCalendarId(String calendarId) {
         this.calendarId = calendarId;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return ((Personeel) obj).getInlogNaam().equals(this.getInlogNaam());
+    }
 }
