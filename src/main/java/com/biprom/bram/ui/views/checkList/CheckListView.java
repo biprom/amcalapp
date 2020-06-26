@@ -4,21 +4,16 @@ package com.biprom.bram.ui.views.checkList;
 import com.biprom.bram.backend.data.entity.mongodbEntities.CheckListBestek;
 import com.biprom.bram.backend.data.entity.mongodbEntities.DetailTicket;
 import com.biprom.bram.backend.data.entity.mongodbEntities.MainTicket;
-import com.biprom.bram.backend.data.entity.mongodbEntities.Personeel;
 import com.biprom.bram.backend.mongoRepositories.MainTicketRepository;
 import com.biprom.bram.backend.mongoRepositories.PersoneelRepository;
 import com.biprom.bram.ui.views.CheckListDesign;
-import com.sun.tools.javac.util.List;
 import com.vaadin.data.Binder;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Notification;
-import com.vaadin.ui.themes.ValoTheme;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.stream.Collectors;
 
 @SpringView(name = "checkList")
@@ -31,6 +26,7 @@ public class CheckListView extends CheckListDesign implements View {
     DetailTicket geslecteerdDetailTicket;
 
     Binder<CheckListBestek>checkListBestekBinder = new Binder<>(  );
+    Binder<DetailTicket>detailTicketBinder = new Binder<>(  );
 
     @Autowired
     public CheckListView(MainTicketRepository mainTicketRepository,
@@ -103,6 +99,7 @@ public class CheckListView extends CheckListDesign implements View {
         }
         geslecteerdDetailTicket = geselecteerdMainTicket.getDetails().stream().filter( x -> x.getamNummer().matches( parameters[0] ) ).findFirst().get();
         checkListBestekBinder.setBean( geslecteerdDetailTicket.getCheckListBestek() );
+        detailTicketBinder.setBean( geslecteerdDetailTicket );
     }
 
     private void setUpCBPositieMagazijn() {
@@ -231,43 +228,68 @@ public class CheckListView extends CheckListDesign implements View {
         checkListBestekBinder.forField( cbgStatusPomp )
                 .bind( x -> x.getPompStatus().stream().collect( Collectors.toSet()),(x, y)-> x.setPompStatus( y )  );
 
+        checkListBestekBinder.forField( tfExtraCommentaarWaterInMotor )
+                .bind( CheckListBestek::getWaterInOnderdeelCommentaar, CheckListBestek::setWaterInOnderdeelCommentaar );
         checkListBestekBinder.forField( tfCommentaarMotorkabel )
-                .bind( CheckListBestek::, CheckListBestek::setRfase3 );
-        checkListBestekBinder.forField( tfCommentaarMotorkabel )
-                .bind( CheckListBestek::getRfase3, CheckListBestek::setRfase3 );
+                .bind( CheckListBestek::getMotorKabelCommentaar, CheckListBestek::setMotorKabelCommentaar );
         checkListBestekBinder.forField( tfLagerAsMotorCommentaar )
-                .bind( CheckListBestek::getRfase3, CheckListBestek::setRfase3 );
+                .bind( CheckListBestek::getLagersMotorCommentaar, CheckListBestek::setLagersMotorCommentaar );
         checkListBestekBinder.forField( tfLagerVentMotorCommentaar1 )
-                .bind( CheckListBestek::getRfase3, CheckListBestek::setRfase3 );
+                .bind( CheckListBestek::getLagersMotorVentilatorCommentaar, CheckListBestek::setLagersMotorVentilatorCommentaar );
         checkListBestekBinder.forField( tfCommentaarPompBinnengebracht )
-                .bind( CheckListBestek::getRfase3, CheckListBestek::setRfase3 );
+                .bind( CheckListBestek::getPompBinnengebrachtCommentaar, CheckListBestek::setPompBinnengebrachtCommentaar );
         checkListBestekBinder.forField( tfCommentaarPompDemonteerbaar )
-                .bind( CheckListBestek::getRfase3, CheckListBestek::setRfase3 );
+                .bind( CheckListBestek::getStaatPompCommentaar, CheckListBestek::setStaatPompCommentaar );
         checkListBestekBinder.forField( tfPrimaireAsafdichtingCommentaar )
-                .bind( CheckListBestek::getRfase3, CheckListBestek::setRfase3 );
+                .bind( CheckListBestek::getAsafdichtingCommentaar, CheckListBestek::setAsafdichtingCommentaar );
         checkListBestekBinder.forField( tfSecundaireAsafdichtingCommentaar )
-                .bind( CheckListBestek::getRfase3, CheckListBestek::setRfase3 );
+                .bind( CheckListBestek::getSecundaireAsafdichtingCommentaar, CheckListBestek::setSecundaireAsafdichtingCommentaar );
         checkListBestekBinder.forField( tfPompasCommentaar )
-                .bind( CheckListBestek::getRfase3, CheckListBestek::setRfase3 );
+                .bind( CheckListBestek::getPompasCommentaar, CheckListBestek::setPompasCommentaar );
         checkListBestekBinder.forField( tfWaaiersCommentaar )
-                .bind( CheckListBestek::getRfase3, CheckListBestek::setRfase3 );
+                .bind( CheckListBestek::getWaaiersCommentaar, CheckListBestek::setWaaiersCommentaar );
         checkListBestekBinder.forField( tfKamersCommentaar )
-                .bind( CheckListBestek::getRfase3, CheckListBestek::setRfase3 );
+                .bind( CheckListBestek::getKamersCommentaar, CheckListBestek::setKamersCommentaar );
         checkListBestekBinder.forField( tfDichtingenCommentaar )
-                .bind( CheckListBestek::getRfase3, CheckListBestek::setRfase3 );
+                .bind( CheckListBestek::getDichtingenCommentaar, CheckListBestek::setDichtingenCommentaar );
         checkListBestekBinder.forField( tfAantastingCommentaar )
-                .bind( CheckListBestek::getRfase3, CheckListBestek::setRfase3 );
+                .bind( CheckListBestek::getAantastingCommentaar, CheckListBestek::setAantastingCommentaar );
         checkListBestekBinder.forField( tfLagersCommentaar )
-                .bind( CheckListBestek::getRfase3, CheckListBestek::setRfase3 );
+                .bind( CheckListBestek::getLagersPompCommentaar, CheckListBestek::setLagersPompCommentaar );
         checkListBestekBinder.forField( tfSpaltRingenCommentaar )
-                .bind( CheckListBestek::getRfase3, CheckListBestek::setRfase3 );
+                .bind( CheckListBestek::getSpaltRingenCommentaar, CheckListBestek::setSpaltRingenCommentaar );
         checkListBestekBinder.forField( tfPompStatusCommentaar )
-                .bind( CheckListBestek::getRfase3, CheckListBestek::setRfase3 );
+                .bind( CheckListBestek::getPompStatusCommentaar, CheckListBestek::setPompStatusCommentaar );
 
+        checkListBestekBinder.forField( dateDemontage )
+                .bind( x -> x.getDatumDemontage(), (x,y) -> x.setDatumDemontage( y ) );
+        checkListBestekBinder.forField( tfUrenDemontage )
+                .bind( x -> x.getAantalUrenDemontage(), (x,y) -> x.setAantalUrenDemontage( y ) );
+        checkListBestekBinder.forField( checkbBestekkostenAanrekenen )
+                .bind( x -> x.isBestekKostenAanrekenen(), (x,y) -> x.setBestekKostenAanrekenen( y ) );
 
+        checkListBestekBinder.forField( datefHerstelDatum )
+                .bind( x -> x.getDatumHerstel(), (x,y) -> x.setDatumHerstel( y ) );
+        checkListBestekBinder.forField( dtUitersteHerstelDatum )
+                .bind( x -> x.getUitersteHerstelDatum(), (x,y) -> x.setUitersteHerstelDatum( y ) );
+        checkListBestekBinder.forField( tfUrenHerstelling )
+                .bind( x -> x.getAantalUrenHerstelling(), (x,y) -> x.setAantalUrenHerstelling( y ) );
+        checkListBestekBinder.forField( tfUrenReinigen )
+                .bind( x -> x.getAantalUrenReiniging(), (x,y) -> x.setAantalUrenReiniging( y ) );
+        detailTicketBinder.forField( checkbHerstellingAfgewerkt )
+                .bind( x -> x.isbPompHersteld(), (x,y) -> x.setbPompHersteld( y ) );
 
+        checkListBestekBinder.forField( tfDebiet )
+                .bind( x -> x.getMeetresultaatDebiet(), (x,y) -> x.setMeetresultaatDebiet( y ) );
+        checkListBestekBinder.forField( tfDruk )
+                .bind( x -> x.getMeetresultaatDruk(), (x,y) -> x.setMeetresultaatDruk( y ) );
+        checkListBestekBinder.forField( tfDebietVuilWater )
+                .bind( x -> x.getDrukTestVuilwaterDruk(), (x,y) -> x.setDrukTestVuilwaterDruk( y ) );
 
         checkListBestekBinder.addValueChangeListener( x -> {
+            mainTicketRepository.save( geselecteerdMainTicket );
+        } );
+        detailTicketBinder.addValueChangeListener( x -> {
             mainTicketRepository.save( geselecteerdMainTicket );
         } );
     }

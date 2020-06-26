@@ -57,6 +57,11 @@ public class CheckListBestek {
     private Set<String> asafdichting;
     private Set<String> secundaireAsafdichting = new HashSet<>(  );
     private String asafdichtingCommentaar;
+    private String secundaireAsafdichtingCommentaar;
+    private String waterInOnderdeelCommentaar;
+
+    private String staatPompCommentaar;
+    private String pompBinnengebrachtCommentaar;
 
     private Set<String> pompas;
     private String pompasCommentaar;
@@ -86,6 +91,7 @@ public class CheckListBestek {
     private Set<String> pompStatus;
     private String pompStatusCommentaar;
     private String commentaarPompNaarJonasNaHerstelling;
+    private String motorKabelCommentaar;
 
     private String productieDatumPomp;
     private String serieNummerPomp;
@@ -983,5 +989,45 @@ public class CheckListBestek {
 
     public void setSecundaireAsafdichting(Set<String> secundaireAsafdichting) {
         this.secundaireAsafdichting = secundaireAsafdichting;
+    }
+
+    public String getSecundaireAsafdichtingCommentaar() {
+        return secundaireAsafdichtingCommentaar;
+    }
+
+    public void setSecundaireAsafdichtingCommentaar(String secundaireAsafdichtingCommentaar) {
+        this.secundaireAsafdichtingCommentaar = secundaireAsafdichtingCommentaar;
+    }
+
+    public String getStaatPompCommentaar() {
+        return staatPompCommentaar;
+    }
+
+    public void setStaatPompCommentaar(String staatPompCommentaar) {
+        this.staatPompCommentaar = staatPompCommentaar;
+    }
+
+    public String getPompBinnengebrachtCommentaar() {
+        return pompBinnengebrachtCommentaar;
+    }
+
+    public void setPompBinnengebrachtCommentaar(String pompBinnengebrachtCommentaar) {
+        this.pompBinnengebrachtCommentaar = pompBinnengebrachtCommentaar;
+    }
+
+    public String getMotorKabelCommentaar() {
+        return motorKabelCommentaar;
+    }
+
+    public void setMotorKabelCommentaar(String motorKabelCommentaar) {
+        this.motorKabelCommentaar = motorKabelCommentaar;
+    }
+
+    public String getWaterInOnderdeelCommentaar() {
+        return waterInOnderdeelCommentaar;
+    }
+
+    public void setWaterInOnderdeelCommentaar(String waterInOnderdeelCommentaar) {
+        this.waterInOnderdeelCommentaar = waterInOnderdeelCommentaar;
     }
 }
