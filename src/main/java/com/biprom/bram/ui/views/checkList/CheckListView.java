@@ -8,12 +8,20 @@ import com.biprom.bram.backend.mongoRepositories.MainTicketRepository;
 import com.biprom.bram.backend.mongoRepositories.PersoneelRepository;
 import com.biprom.bram.ui.views.CheckListDesign;
 import com.vaadin.data.Binder;
+import com.vaadin.data.converter.StringToIntegerConverter;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
+import com.vaadin.server.FileResource;
 import com.vaadin.spring.annotation.SpringView;
+import com.vaadin.ui.CheckBoxGroup;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.Notification;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @SpringView(name = "checkList")
@@ -28,6 +36,47 @@ public class CheckListView extends CheckListDesign implements View {
     Binder<CheckListBestek>checkListBestekBinder = new Binder<>(  );
     Binder<DetailTicket>detailTicketBinder = new Binder<>(  );
 
+    Iterator<String>stringIterator;
+
+    Boolean bNoDoubleEvents = false;
+
+    List<Integer> amNummerList = new ArrayList<>(  );
+    File noImageFile = new File("/data/kabba/amcalPics/5.jpeg");
+    File file1Aansluiting = new File("/data/kabba/amcalPics/1.jpeg");
+    File file2Aansluiting = new File("/data/kabba/amcalPics/2.jpeg");
+    File file3Aansluiting = new File("/data/kabba/amcalPics/3.jpeg");
+    File file4Aansluiting = new File("/data/kabba/amcalPics/4.jpeg");
+
+    FileResource noImageResource = new FileResource(noImageFile);
+    FileResource imgResource1Aansluiting = new FileResource(file1Aansluiting);
+    FileResource imgResource2Aansluiting = new FileResource(file2Aansluiting);
+    FileResource imgResource3Aansluiting = new FileResource(file3Aansluiting);
+    FileResource imgResource4Aansluiting = new FileResource(file4Aansluiting);
+
+    FileResource[] fileResourcesArrayAansluiting = {noImageResource,imgResource1Aansluiting, imgResource2Aansluiting, imgResource3Aansluiting, imgResource4Aansluiting};
+
+
+    File file1Ontluchting = new File("/data/kabba/amcalPics/1o.jpeg");
+    File file2Ontluchting = new File("/data/kabba/amcalPics/2o.jpeg");
+    File file3Ontluchting = new File("/data/kabba/amcalPics/3o.jpeg");
+    File file4Ontluchting = new File("/data/kabba/amcalPics/4o.jpeg");
+
+    FileResource imgResource1Ontluchting = new FileResource(file1Ontluchting);
+    FileResource imgResource2Ontluchting = new FileResource(file2Ontluchting);
+    FileResource imgResource3Ontluchting = new FileResource(file3Ontluchting);
+    FileResource imgResource4Ontluchting = new FileResource(file4Ontluchting);
+
+    FileResource[] fileResourcesArrayOntluchting = {noImageResource,imgResource1Ontluchting, imgResource2Ontluchting, imgResource3Ontluchting, imgResource4Ontluchting};
+
+
+    File file1Platen = new File("/data/kabba/amcalPics/1p.jpeg");
+    File file2Platen = new File("/data/kabba/amcalPics/2p.jpeg");
+
+    FileResource imgResource1Platen = new FileResource(file1Platen);
+    FileResource imgResource2Platen = new FileResource(file2Platen);
+
+    FileResource[] fileResourcesArrayPlaten = {noImageResource,imgResource1Platen, imgResource2Platen};
+
     @Autowired
     public CheckListView(MainTicketRepository mainTicketRepository,
                          PersoneelRepository personeelRepository) {
@@ -39,41 +88,39 @@ public class CheckListView extends CheckListDesign implements View {
         setUpCBPositieMagazijn();
         setUpPositieAansluitingen();
         setUpBinder();
+        setUpCBAansluitingen();
+        setUpCheckBoxGroupValueChangeListeners();
+    }
+
+    private void setUpCBAansluitingen() {
+
+        cbElektrischeAansluiting.addValueChangeListener(e -> {
+            imgElektrischeAansluiting.setSource(fileResourcesArrayAansluiting[getImageNumber(e.getValue())]);
+        });
+        cbZijdeOntluchting.addValueChangeListener(e -> {
+            imgOntluchtingAansluiting.setSource(fileResourcesArrayOntluchting[getImageNumber(e.getValue())]);
+        });
+        cbMontagePlaten.addValueChangeListener(e -> {
+            imgMontagePlatenAansluiting.setSource(fileResourcesArrayPlaten[getImageNumber(e.getValue())]);
+        });
     }
 
     private void setUpPositieAansluitingen() {
-        cbElektrischeAansluiting.setItems( 1,2,3,4 );
+        cbElektrischeAansluiting.setItems( "1","2","3","4" );
         cbElektrischeAansluiting.setItemCaptionGenerator( x -> {
             return getProperName(x);
         } );
-        cbZijdeOntluchting.setItems( 1,2,3,4 );
+        cbZijdeOntluchting.setItems( "1o","2o","3o","4o" );
         cbZijdeOntluchting.setItemCaptionGenerator( x -> {
             return getProperName(x);
         } );
-        cbMontagePlaten.setItems( 1,2 );
+        cbMontagePlaten.setItems( "1p","2p" );
         cbMontagePlaten.setItemCaptionGenerator( x -> {
             return getProperName(x);
         } );
     }
 
-    private String getProperName(Integer integer) {
-        String returnValue = "";
-        switch (integer) {
-            case 1:
-                returnValue = "Links";
-            break;
-            case 2:
-                returnValue = "Boven";
-            break;
-            case 3:
-                returnValue = "Rechts";
-            break;
-            case 4:
-                returnValue = "Onder";
-            break;
-        }
-        return returnValue;
-    }
+
 
     private void setUpCheckBoxGroupTechniekers() {
         checkbGroupTechniekers.setItems( personeelRepository.findAll().stream().collect( Collectors.toSet()));
@@ -100,6 +147,9 @@ public class CheckListView extends CheckListDesign implements View {
         geslecteerdDetailTicket = geselecteerdMainTicket.getDetails().stream().filter( x -> x.getamNummer().matches( parameters[0] ) ).findFirst().get();
         checkListBestekBinder.setBean( geslecteerdDetailTicket.getCheckListBestek() );
         detailTicketBinder.setBean( geslecteerdDetailTicket );
+
+        checkMotorOfPompOK();
+
     }
 
     private void setUpCBPositieMagazijn() {
@@ -127,11 +177,11 @@ public class CheckListView extends CheckListDesign implements View {
         checkListBestekBinder.forField( tfAnderePositie )
                 .bind( CheckListBestek::getAnderPositie, CheckListBestek::setAnderPositie );
         checkListBestekBinder.forField( cbElektrischeAansluiting )
-                .bind( CheckListBestek::getZijdeElektrischeAansluiting, CheckListBestek::setZijdeElektrischeAansluiting );
+                .bind( x -> String.valueOf(x.getZijdeElektrischeAansluiting()), (x,y) -> x.setZijdeElektrischeAansluiting(getImageNumber(y)) );
         checkListBestekBinder.forField( cbZijdeOntluchting )
-                .bind( CheckListBestek::getZijdeOntluchting, CheckListBestek::setZijdeOntluchting );
+                .bind( x -> String.valueOf(x.getZijdeOntluchting()), (x,y) -> x.setZijdeOntluchting(getImageNumber(y)) );
         checkListBestekBinder.forField( cbMontagePlaten )
-                .bind( CheckListBestek::getZijdeMontagePlaten, CheckListBestek::setZijdeMontagePlaten );
+                .bind( x -> String.valueOf(x.getZijdeMontagePlaten()), (x,y) -> x.setZijdeMontagePlaten(getImageNumber(y)) );
         checkListBestekBinder.forField( taBijkomendCommentaarPomp )
                 .bind( CheckListBestek::getCommentaarPomp, CheckListBestek::setCommentaarPomp );
         checkListBestekBinder.forField( tfUitGebreidPompType )
@@ -292,6 +342,363 @@ public class CheckListView extends CheckListDesign implements View {
         detailTicketBinder.addValueChangeListener( x -> {
             mainTicketRepository.save( geselecteerdMainTicket );
         } );
+    }
+
+    public void checkMotorOfPompOK(){
+
+        if(bNoDoubleEvents == false) {
+
+        bNoDoubleEvents = true;
+            stringIterator = cbgMotorElektrischInOrde.getValue().iterator();
+            while (stringIterator.hasNext()) {
+                String stringToCompare = stringIterator.next();
+
+                if (stringToCompare.matches("Moteur électrique OK")) {
+                    vLayoutMotorElektrisch.setVisible(false);
+                    cbgMotorElektrischInOrde.deselect("Moteur électrique NOK");
+                } else if (stringToCompare.matches("Moteur électrique NOK")) {
+                    vLayoutMotorElektrisch.setVisible(true);
+                    cbgMotorElektrischInOrde.deselect("Moteur électrique OK");
+                    //cbgMotorElektrischInOrde.setStyleName("horizontal optionGroupRedStyle");
+                }
+                if (stringToCompare.matches("Moteur mécanique OK")) {
+                    vLayoutMotorMechanisch.setVisible(false);
+                    cbgMotorElektrischInOrde.deselect("Moteur mécanique NOK");
+                } else if (stringToCompare.matches("Moteur mécanique NOK")) {
+                    vLayoutMotorMechanisch.setVisible(true);
+                    cbgMotorElektrischInOrde.deselect("Moteur mécanique OK");
+                    //cbgMotorElektrischInOrde.setStyleName("horizontal optionGroupGreenStyle");
+                }
+            }
+            bNoDoubleEvents = false;
+        }
+
+
+    }
+
+    private String getProperName(String toConvert) {
+        String returnValue = "";
+        switch (toConvert) {
+            case "1":
+                returnValue = "Links";
+                break;
+            case "1o":
+                returnValue = "Links";
+                break;
+            case "1p":
+                returnValue = "Links";
+                break;
+            case "2":
+                returnValue = "Boven";
+                break;
+            case "2o":
+                returnValue = "Boven";
+                break;
+            case "2p":
+                returnValue = "Boven";
+                break;
+            case "3":
+                returnValue = "Rechts";
+                break;
+            case "3o":
+                returnValue = "Rechts";
+                break;
+            case "4":
+                returnValue = "Onder";
+                break;
+            case "4o":
+                returnValue = "Onder";
+                break;
+        }
+        return returnValue;
+    }
+
+    private Integer getImageNumber(String toConvert) {
+        Integer returnValue = 0;
+        switch (toConvert) {
+            case "1":
+                returnValue = 1;
+                break;
+            case "1o":
+                returnValue = 1;
+                break;
+            case "1p":
+                returnValue = 1;
+                break;
+            case "2":
+                returnValue = 2;
+                break;
+            case "2o":
+                returnValue = 2;
+                break;
+            case "2p":
+                returnValue = 2;
+                break;
+            case "3":
+                returnValue = 3;
+                break;
+            case "3o":
+                returnValue = 3;
+                break;
+            case "4":
+                returnValue = 4;
+                break;
+            case "4o":
+                returnValue = 4;
+                break;
+        }
+        return returnValue;
+    }
+
+    public void setStyleToAllCheckBoxGroups(){
+        while (hLaytoutMotorElektrischInOrde.iterator().hasNext()){
+            Component componentToCheck = iterator().next();
+            if(componentToCheck.equals(CheckBoxGroup.class)){
+                setStyleToComponent((CheckBoxGroup) componentToCheck);
+            }
+        }
+        while (vLayoutMotorElektrisch.iterator().hasNext()){
+            Component componentToCheck = iterator().next();
+            if(componentToCheck.equals(CheckBoxGroup.class)){
+                setStyleToComponent((CheckBoxGroup) componentToCheck);
+            }
+        }
+        while (vLayoutMotorMechanisch.iterator().hasNext()){
+            Component componentToCheck = iterator().next();
+            if(componentToCheck.equals(CheckBoxGroup.class)){
+                setStyleToComponent((CheckBoxGroup) componentToCheck);
+            }
+        }
+        while (vLayoutPompeigenschappen.iterator().hasNext()){
+            Component componentToCheck = iterator().next();
+            if(componentToCheck.equals(CheckBoxGroup.class)){
+                setStyleToComponent((CheckBoxGroup) componentToCheck);
+            }
+        }
+    }
+
+    public void setStyleToComponent(CheckBoxGroup checkboxgroupToCheck){
+        if(checkboxgroupToCheck.getValue().iterator().hasNext() == true){
+            checkboxgroupToCheck.setStyleName("horizontal optionGroupGreenStyle");
+        }
+        else{
+            checkboxgroupToCheck.setStyleName("horizontal optionGroupRedStyle");
+        }
+    }
+    private void setUpCheckBoxGroupValueChangeListeners() {
+        cbgMotorElektrischInOrde.addValueChangeListener(x -> {
+
+            checkMotorOfPompOK();
+
+            if(cbgMotorElektrischInOrde.getValue().isEmpty()){
+                cbgMotorElektrischInOrde.setStyleName("horizontal optionGroupRedStyle");
+            }
+            else{
+                cbgMotorElektrischInOrde.setStyleName("horizontal optionGroupGreenStyle");
+            }
+        });
+        cbgIsolatieweerstand.addValueChangeListener(x -> {
+            if(cbgIsolatieweerstand.getValue().isEmpty()){
+                cbgIsolatieweerstand.setStyleName("horizontal optionGroupRedStyle");
+            }
+            else{
+                cbgIsolatieweerstand.setStyleName("horizontal optionGroupGreenStyle");
+            }
+        });
+        cbgMotorVerbrand.addValueChangeListener(x -> {
+            if(cbgMotorVerbrand.getValue().isEmpty()){
+                cbgMotorVerbrand.setStyleName("horizontal optionGroupRedStyle");
+            }
+            else{
+                cbgMotorVerbrand.setStyleName("horizontal optionGroupGreenStyle");
+            }
+        });
+        cbgControlBox.addValueChangeListener(x -> {
+            if(cbgControlBox.getValue().isEmpty()){
+                cbgControlBox.setStyleName("horizontal optionGroupRedStyle");
+            }
+            else{
+                cbgControlBox.setStyleName("horizontal optionGroupGreenStyle");
+            }
+        });
+        cbgWaterInMotor.addValueChangeListener(x -> {
+            if(cbgWaterInMotor.getValue().isEmpty()){
+                cbgWaterInMotor.setStyleName("horizontal optionGroupRedStyle");
+            }
+            else{
+                cbgWaterInMotor.setStyleName("horizontal optionGroupGreenStyle");
+            }
+        });
+        cbgMotorkabel.addValueChangeListener(x -> {
+            if(cbgMotorkabel.getValue().isEmpty()){
+                cbgMotorkabel.setStyleName("horizontal optionGroupRedStyle");
+            }
+            else{
+                cbgMotorkabel.setStyleName("horizontal optionGroupGreenStyle");
+            }
+        });
+        cbgVochtInMotor.addValueChangeListener(x -> {
+            if(cbgVochtInMotor.getValue().isEmpty()){
+                cbgVochtInMotor.setStyleName("horizontal optionGroupRedStyle");
+            }
+            else{
+                cbgVochtInMotor.setStyleName("horizontal optionGroupGreenStyle");
+            }
+        });
+
+        cbgMotorLagers.addValueChangeListener(x -> {
+            if(cbgMotorLagers.getValue().isEmpty()){
+                cbgMotorLagers.setStyleName("horizontal optionGroupRedStyle");
+            }
+            else{
+                cbgMotorLagers.setStyleName("horizontal optionGroupGreenStyle");
+            }
+        });
+        cbgMotorDichtingen.addValueChangeListener(x -> {
+            if(cbgMotorDichtingen.getValue().isEmpty()){
+                cbgMotorDichtingen.setStyleName("horizontal optionGroupRedStyle");
+            }
+            else{
+                cbgMotorDichtingen.setStyleName("horizontal optionGroupGreenStyle");
+            }
+        });
+        cbgVentilator.addValueChangeListener(x -> {
+            if(cbgVentilator.getValue().isEmpty()){
+                cbgVentilator.setStyleName("horizontal optionGroupRedStyle");
+            }
+            else{
+                cbgVentilator.setStyleName("horizontal optionGroupGreenStyle");
+            }
+        });
+        cbgBeschadingMotor.addValueChangeListener(x -> {
+            if(cbgBeschadingMotor.getValue().isEmpty()){
+                cbgBeschadingMotor.setStyleName("horizontal optionGroupRedStyle");
+            }
+            else{
+                cbgBeschadingMotor.setStyleName("horizontal optionGroupGreenStyle");
+            }
+        });
+        cbgBinnengebrachtPomp.addValueChangeListener(x -> {
+            if(cbgBinnengebrachtPomp.getValue().isEmpty()){
+                cbgBinnengebrachtPomp.setStyleName("horizontal optionGroupRedStyle");
+            }
+            else{
+                cbgBinnengebrachtPomp.setStyleName("horizontal optionGroupGreenStyle");
+            }
+        });
+        cbgStaatPomp.addValueChangeListener(x -> {
+            if(cbgStaatPomp.getValue().isEmpty()){
+                cbgStaatPomp.setStyleName("horizontal optionGroupRedStyle");
+            }
+            else{
+                cbgStaatPomp.setStyleName("horizontal optionGroupGreenStyle");
+            }
+        });
+        cbgPrimaireAsafdichtingen.addValueChangeListener(x -> {
+            if(cbgPrimaireAsafdichtingen.getValue().isEmpty()){
+                cbgPrimaireAsafdichtingen.setStyleName("horizontal optionGroupRedStyle");
+            }
+            else{
+                cbgPrimaireAsafdichtingen.setStyleName("horizontal optionGroupGreenStyle");
+            }
+        });
+        cbgSecundaireAsafdichtingen.addValueChangeListener(x -> {
+            if(cbgSecundaireAsafdichtingen.getValue().isEmpty()){
+                cbgSecundaireAsafdichtingen.setStyleName("horizontal optionGroupRedStyle");
+            }
+            else{
+                cbgSecundaireAsafdichtingen.setStyleName("horizontal optionGroupGreenStyle");
+            }
+        });
+        cbgPompas.addValueChangeListener(x -> {
+            if(cbgPompas.getValue().isEmpty()){
+                cbgPompas.setStyleName("horizontal optionGroupRedStyle");
+            }
+            else{
+                cbgPompas.setStyleName("horizontal optionGroupGreenStyle");
+            }
+        });
+        cbgWaaiers.addValueChangeListener(x -> {
+            if(cbgWaaiers.getValue().isEmpty()){
+                cbgWaaiers.setStyleName("horizontal optionGroupRedStyle");
+            }
+            else{
+                cbgWaaiers.setStyleName("horizontal optionGroupGreenStyle");
+            }
+        });
+        cbgKamers.addValueChangeListener(x -> {
+            if(cbgKamers.getValue().isEmpty()){
+                cbgKamers.setStyleName("horizontal optionGroupRedStyle");
+            }
+            else{
+                cbgKamers.setStyleName("horizontal optionGroupGreenStyle");
+            }
+        });
+        cbgDichtingen.addValueChangeListener(x -> {
+            if(cbgDichtingen.getValue().isEmpty()){
+                cbgDichtingen.setStyleName("horizontal optionGroupRedStyle");
+            }
+            else{
+                cbgDichtingen.setStyleName("horizontal optionGroupGreenStyle");
+            }
+        });
+        cbgAantasting.addValueChangeListener(x -> {
+            if(cbgAantasting.getValue().isEmpty()){
+                cbgAantasting.setStyleName("horizontal optionGroupRedStyle");
+            }
+            else{
+                cbgAantasting.setStyleName("horizontal optionGroupGreenStyle");
+            }
+        });
+        cbgLagers.addValueChangeListener(x -> {
+            if(cbgLagers.getValue().isEmpty()){
+                cbgLagers.setStyleName("horizontal optionGroupRedStyle");
+            }
+            else{
+                cbgLagers.setStyleName("horizontal optionGroupGreenStyle");
+            }
+        });
+        cbgSpaltringen.addValueChangeListener(x -> {
+            if(cbgSpaltringen.getValue().isEmpty()){
+                cbgSpaltringen.setStyleName("horizontal optionGroupRedStyle");
+            }
+            else{
+                cbgSpaltringen.setStyleName("horizontal optionGroupGreenStyle");
+            }
+        });
+        cbgBinnenwerk.addValueChangeListener(x -> {
+            if(cbgBinnenwerk.getValue().isEmpty()){
+                cbgBinnenwerk.setStyleName("horizontal optionGroupRedStyle");
+            }
+            else{
+                cbgBinnenwerk.setStyleName("horizontal optionGroupGreenStyle");
+            }
+        });
+        cbgVuilInPomp.addValueChangeListener(x -> {
+            if(cbgVuilInPomp.getValue().isEmpty()){
+                cbgVuilInPomp.setStyleName("horizontal optionGroupRedStyle");
+            }
+            else{
+                cbgVuilInPomp.setStyleName("horizontal optionGroupGreenStyle");
+            }
+        });
+        cbgStatusPomp.addValueChangeListener(x -> {
+            if(cbgStatusPomp.getValue().isEmpty()){
+                cbgStatusPomp.setStyleName("horizontal optionGroupRedStyle");
+            }
+            else{
+                cbgStatusPomp.setStyleName("horizontal optionGroupGreenStyle");
+            }
+        });
+        cbgPompBehandeling.addValueChangeListener(x -> {
+            if(cbgPompBehandeling.getValue().isEmpty()){
+                cbgPompBehandeling.setStyleName("horizontal optionGroupRedStyle");
+            }
+            else{
+                cbgPompBehandeling.setStyleName("horizontal optionGroupGreenStyle");
+            }
+        });
+
     }
 
 }

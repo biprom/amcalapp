@@ -145,4 +145,6 @@ public class AtelierView extends AtelierDesign implements View {
 		navigationManager.navigateTo( CheckListView.class, selectedDetail.getamNummer(), selectedDetail.getOpdrachtgever());
 	}
 
+
+
 	}

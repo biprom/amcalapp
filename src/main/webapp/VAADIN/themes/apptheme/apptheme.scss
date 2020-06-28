@@ -60,4 +60,11 @@ $app-background-image: url('bg.jpg');
     display: inline-block;
     text-align: center;
   }
+
+  .v-select-optiongroup.optionGroupRedStyle{
+    color: red;
+  }
+  .v-select-optiongroup.optionGroupGreenStyle{
+    background: greenyellow;
+  }
 }

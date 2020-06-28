@@ -34,11 +34,11 @@ public class CheckListDesign extends VerticalLayout {
     protected TextField tfBinnengebrachtAndereManier;
     protected ComboBox<String> cbPositieMagazijn;
     protected TextField tfAnderePositie;
-    protected ComboBox<Integer> cbElektrischeAansluiting;
+    protected ComboBox<String> cbElektrischeAansluiting;
     protected Image imgElektrischeAansluiting;
-    protected ComboBox<Integer> cbZijdeOntluchting;
+    protected ComboBox<String> cbZijdeOntluchting;
     protected Image imgOntluchtingAansluiting;
-    protected ComboBox<Integer> cbMontagePlaten;
+    protected ComboBox<String> cbMontagePlaten;
     protected Image imgMontagePlatenAansluiting;
     protected TextArea taBijkomendCommentaarPomp;
     protected TextField tfUitGebreidPompType;
@@ -78,6 +78,7 @@ public class CheckListDesign extends VerticalLayout {
     protected CheckBoxGroup<String> cbgMotorDichtingen;
     protected CheckBoxGroup<String> cbgVentilator;
     protected CheckBoxGroup<String> cbgBeschadingMotor;
+    protected VerticalLayout vLayoutPompeigenschappen;
     protected CheckBoxGroup<String> cbgGarantie;
     protected CheckBoxGroup<String> cbgBinnengebrachtPomp;
     protected TextField tfCommentaarPompBinnengebracht;

@@ -30,11 +30,11 @@
     <vaadin-text-field caption="Ander Positie" _id="tfAnderePositie"></vaadin-text-field>
    </vaadin-horizontal-layout>
    <vaadin-horizontal-layout width-full margin>
-    <vaadin-combo-box caption="Elektrische Aansluiting" data-item-type="java.lang.Integer" _id="cbElektrischeAansluiting"></vaadin-combo-box>
+    <vaadin-combo-box caption="Elektrische Aansluiting" data-item-type="java.lang.String" _id="cbElektrischeAansluiting"></vaadin-combo-box>
     <vaadin-image _id="imgElektrischeAansluiting" :bottom :center></vaadin-image>
-    <vaadin-combo-box caption="Ontluchting" data-item-type="java.lang.Integer" _id="cbZijdeOntluchting"></vaadin-combo-box>
+    <vaadin-combo-box caption="Ontluchting" data-item-type="java.lang.String" _id="cbZijdeOntluchting"></vaadin-combo-box>
     <vaadin-image _id="imgOntluchtingAansluiting" :bottom :center></vaadin-image>
-    <vaadin-combo-box caption="Montageplaten" data-item-type="java.lang.Integer" _id="cbMontagePlaten"></vaadin-combo-box>
+    <vaadin-combo-box caption="Montageplaten" data-item-type="java.lang.String" _id="cbMontagePlaten"></vaadin-combo-box>
     <vaadin-image _id="imgMontagePlatenAansluiting" :bottom :center></vaadin-image>
    </vaadin-horizontal-layout>
    <vaadin-text-area caption="Bijkomend commentaar Pomp" width-full _id="taBijkomendCommentaarPomp"></vaadin-text-area>
@@ -162,7 +162,7 @@
      <option item="bride NDE est défectueux">Flens NDE defect</option>
     </vaadin-check-box-group>
    </vaadin-vertical-layout>
-   <vaadin-vertical-layout caption="Pompeigenschappen" size-auto>
+   <vaadin-vertical-layout caption="Pompeigenschappen" size-auto _id="vLayoutPompeigenschappen">
     <vaadin-check-box-group style-name="horizontal" data-item-type="java.lang.String" _id="cbgGarantie">
      <option item="Garantie NON">Garantie NEEN</option>
      <option item="Garantie OUI">Garantie JA</option>
