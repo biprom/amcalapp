@@ -9,7 +9,21 @@
  <body>
   <vaadin-vertical-layout style-name="dashboard-view" spacing="false" responsive margin="false">
    <board-board id="board" width-full _id="board"></board-board>
-   <board-board id="boardUpdate" width-full _id="boardUpdate"></board-board>
+   <vaadin-grid-layout width-full _id="hLayoutTechniekers">
+    <row>
+     <column></column>
+     <column></column>
+     <column></column>
+     <column></column>
+    </row>
+    <row>
+     <column></column>
+     <column></column>
+     <column></column>
+     <column></column>
+    </row>
+   </vaadin-grid-layout>
+   <board-board visible="false" id="boardUpdate" width-full _id="boardUpdate"></board-board>
    <vaadin-vertical-layout _id="vLayoutGrid"></vaadin-vertical-layout>
   </vaadin-vertical-layout>
  </body>

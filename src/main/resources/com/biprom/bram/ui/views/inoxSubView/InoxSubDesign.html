@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+ <head>
+  <meta charset="UTF-8">
+  <meta name="design-properties" content="{&quot;RULERS_VISIBLE&quot;:true,&quot;GUIDELINES_VISIBLE&quot;:false,&quot;SNAP_TO_OBJECTS&quot;:true,&quot;SNAP_TO_GRID&quot;:true,&quot;SNAPPING_DISTANCE&quot;:10,&quot;GENERATE_GETTERS&quot;:false,&quot;JAVA_SOURCES_ROOT&quot;:&quot;src/main/java&quot;,&quot;THEME&quot;:&quot;valo&quot;}">
+  <meta name="vaadin-version" content="8.1.5">
+ </head>
+ <body>
+  <vaadin-panel>
+   <vaadin-vertical-layout size-full>
+    <vaadin-label style-name="h2" plain-text>
+      Inox werken 
+    </vaadin-label>
+    <vaadin-label style-name="h2 colored" plain-text _id="infoLabel">
+      Label 
+    </vaadin-label>
+    <vaadin-label caption="Omschrijving opdracht" style-name="h2 colored" plain-text _id="infoLabelOpdracht"></vaadin-label>
+    <vaadin-horizontal-layout width-full>
+     <vaadin-text-area caption="Klant" width-full _id="taKlant" :expand></vaadin-text-area>
+     <vaadin-text-area caption="Commentaar" width-full _id="taCommentaar" :expand></vaadin-text-area>
+    </vaadin-horizontal-layout>
+    <vaadin-horizontal-layout size-full margin :expand>
+     <vaadin-list-select caption="Personeel" data-item-type="com.biprom.bram.backend.data.entity.mongodbEntities.Personeel" _id="lsPersoneel"></vaadin-list-select>
+     <vaadin-vertical-layout size-auto>
+      <vaadin-combo-box caption="Aantal Personen" data-item-type="java.lang.String" _id="cbAantalPersonen">
+       <option item="1">1</option>
+       <option item="2">2</option>
+       <option item="3">3</option>
+      </vaadin-combo-box>
+     </vaadin-vertical-layout>
+    </vaadin-horizontal-layout>
+    <vaadin-vertical-layout size-full _id="vGridLayout">
+     <vaadin-grid height-mode="undefined" width-full data-item-type="com.biprom.bram.backend.data.entity.mongodbEntities.Product" _id="productGrid"></vaadin-grid>
+    </vaadin-vertical-layout>
+    <vaadin-horizontal-layout width-full>
+     <vaadin-check-box caption="Afgewerkt en te factureren" _id="checkbVolledigUitgevoerd"></vaadin-check-box>
+     <vaadin-upload button-caption="Upload Foto aan ticket" _id="uploadFoto"></vaadin-upload>
+    </vaadin-horizontal-layout>
+    <vaadin-button style-name="friendly" width-full plain-text _id="bSave">
+      Bewaar 
+    </vaadin-button>
+    <vaadin-button style-name="primary" width-full plain-text _id="buttonBack">
+      Ga terug 
+    </vaadin-button>
+    <vaadin-grid-layout width-full _id="imageGird"></vaadin-grid-layout>
+   </vaadin-vertical-layout>
+  </vaadin-panel>
+ </body>
+</html>

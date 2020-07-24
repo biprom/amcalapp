@@ -6,9 +6,7 @@ import org.springframework.data.annotation.Id;
 import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
 public class CheckListBestek {
@@ -18,7 +16,9 @@ public class CheckListBestek {
 
     private String productieDatumMotor;
 
-    private Set<String> motorMechElektrInOrde = new HashSet<>(  );
+    private String motorMechanischInOrde;
+    private String motorElekrischInOrde;
+
     private String Risolatie;
     private String Rfase1;
     private String Rfase2;
@@ -30,24 +30,27 @@ public class CheckListBestek {
 
     private String demontagePersoon;
     private String geholpenDoor;
-    private List<Personeel> gedemonteerdDoorList;
+    private List<Personeel> gedemonteerdDoorList = new ArrayList<>();
 
     private String hersteldDoor;
     private String herstellingGeholpenDoor;
-    private List<Personeel> hersteldDoorList;
+    private List<Personeel> hersteldDoorList = new ArrayList<>();
 
     private Set<String> binnengebrachtOp;
     private String binnengebrachtOpAndere;
     private String commentaarMotor;
     private Set<String> isolatieWeerstand;
     private Set<String> wikkelingsWaardes;
+    private String wikkelWaarde1 = new String("");
+    private String wikkelWaarde2 = new String("");
+    private String wikkelWaarde3 = new String("");
     private Set<String> waterInMotor;
     private Set<String> motorLagers;
     private String lagersMotorCommentaar;
     private String lagersMotorVentilatorCommentaar;
     private Set<String> ventilator;
     private Set<String> rotorStatorFlens;
-    private Set<String> motorVerbrand;
+    private Set<String> motorVerbrand = new HashSet<>();
 
     private String commentaarPomp = "";
     private Set<String> pompBinnengebracht;
@@ -122,6 +125,7 @@ public class CheckListBestek {
     private Integer zijdeOntluchting;
     private Integer zijdeMontagePlaten;
 
+    private boolean gnNabehandeling;
     private boolean herschilderen;
     private boolean zandstralenEnHerschilderen;
     private boolean zuurbehandeling;
@@ -149,53 +153,9 @@ public class CheckListBestek {
 
     private Set<String> motorDichtingen = new HashSet<>(  );
 
-        public String getFields() {
-            String returnString = "";
-            Field fields[] = this.getClass().getDeclaredFields();
-            for (Field f : fields) {
-
-                  try {
-                        System.out.println( f.getName() );
-                        Object value = f.get(this);
-
-                        try{
-                                if((value.toString() != "")
-                                        && (value.toString() != "[]")
-                                        && (!value.toString().contains( "hersteldDoorList" ))
-                                        && (!value.toString().contains( "herstellingGeholpenDoor" ))
-                                        && (!value.toString().contains( "hersteldDoor" ))
-                                        && (!value.toString().contains( "gedemonteerdDoorList" ))
-                                        && (!value.toString().contains( "geholpenDoor" ))
-                                        && (!value.toString().contains( "demontagePersoon" ))){
-                                    if (value.toString().startsWith( "[" )){
-                                        returnString = returnString + value.toString() + "\n";
-                                    }
-
-                                }
-
-
-
-
-                        }
-                        catch(Exception e ){
-                        }
-
-
-                    }
-                    catch (IllegalArgumentException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                    catch (IllegalAccessException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                }
-            return returnString;
-
-        }
-
-
+    private String vermogenPomp = new String("");
+    private String qNomPomp = new String("");
+    private String hNomPomp = new String("");
 
 
     public Set<String> getMotorVerbrand() {
@@ -206,12 +166,20 @@ public class CheckListBestek {
         this.motorVerbrand = motorVerbrand;
     }
 
-    public Set<String> getMotorMechElektrInOrde() {
-        return motorMechElektrInOrde;
+    public String getMotorMechanischInOrde() {
+        return motorMechanischInOrde;
     }
 
-    public void setMotorMechElektrInOrde(Set<String> motorMechElektrInOrde) {
-        this.motorMechElektrInOrde = motorMechElektrInOrde;
+    public void setMotorMechanischInOrde(String motorMechanischInOrde) {
+        this.motorMechanischInOrde = motorMechanischInOrde;
+    }
+
+    public String getMotorElekrischInOrde() {
+        return motorElekrischInOrde;
+    }
+
+    public void setMotorElekrischInOrde(String motorElekrischInOrde) {
+        this.motorElekrischInOrde = motorElekrischInOrde;
     }
 
     public String getRisolatie() {
@@ -1029,5 +997,61 @@ public class CheckListBestek {
 
     public void setWaterInOnderdeelCommentaar(String waterInOnderdeelCommentaar) {
         this.waterInOnderdeelCommentaar = waterInOnderdeelCommentaar;
+    }
+
+    public boolean isGnNabehandeling() {
+        return gnNabehandeling;
+    }
+
+    public void setGnNabehandeling(boolean gnNabehandeling) {
+        this.gnNabehandeling = gnNabehandeling;
+    }
+
+    public String getVermogenPomp() {
+        return vermogenPomp;
+    }
+
+    public void setVermogenPomp(String vermogenPomp) {
+        this.vermogenPomp = vermogenPomp;
+    }
+
+    public String getqNomPomp() {
+        return qNomPomp;
+    }
+
+    public void setqNomPomp(String qNomPomp) {
+        this.qNomPomp = qNomPomp;
+    }
+
+    public String gethNomPomp() {
+        return hNomPomp;
+    }
+
+    public void sethNomPomp(String hNomPomp) {
+        this.hNomPomp = hNomPomp;
+    }
+
+    public String getWikkelWaarde1() {
+        return wikkelWaarde1;
+    }
+
+    public void setWikkelWaarde1(String wikkelWaarde1) {
+        this.wikkelWaarde1 = wikkelWaarde1;
+    }
+
+    public String getWikkelWaarde2() {
+        return wikkelWaarde2;
+    }
+
+    public void setWikkelWaarde2(String wikkelWaarde2) {
+        this.wikkelWaarde2 = wikkelWaarde2;
+    }
+
+    public String getWikkelWaarde3() {
+        return wikkelWaarde3;
+    }
+
+    public void setWikkelWaarde3(String wikkelWaarde3) {
+        this.wikkelWaarde3 = wikkelWaarde3;
     }
 }

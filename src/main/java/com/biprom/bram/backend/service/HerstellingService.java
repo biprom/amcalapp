@@ -17,8 +17,10 @@ import javax.transaction.Transactional;
 
 import com.biprom.bram.backend.Enums.Enums;
 import com.biprom.bram.backend.data.entity.mongodbEntities.DetailTicket;
+import com.biprom.bram.backend.data.entity.mongodbEntities.InplanningEntity;
 import com.biprom.bram.backend.data.entity.mongodbEntities.MainTicket;
 import com.biprom.bram.backend.mongoRepositories.MainTicketRepository;
+import com.vaadin.ui.Notification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -44,6 +46,7 @@ public class HerstellingService {
 	List<DetailTicket> detailTicketListTeHerstellen = new ArrayList<>();
 	List<DetailTicket> detailTicketListTeDemonteren = new ArrayList<>();
 	List<DetailTicket> detailTicketListVoorTeBereiden = new ArrayList<>();
+	List<DetailTicket> inoxEntityList = new ArrayList();
 
 	static {
 		notAvailableStates = new HashSet<>( Arrays.asList( OrderState.values() ) );
@@ -195,5 +198,22 @@ public class HerstellingService {
 			}
 		}
 		return detailTicketListVoorTeBereiden;
+	}
+
+	public List<DetailTicket> getAllDetailsToInox() {
+
+		inoxEntityList.clear();
+		List<MainTicket> mainTicketList = mainTicketRepository.findByDetails_OpdrachtAfgewerktAndDetailsBProject( false, true );
+		for (MainTicket mainTicket : mainTicketList) {
+			for(DetailTicket detailTicket : mainTicket.getDetails()){
+				if((detailTicket.getamNummer().startsWith("IN"))&&(detailTicket.isOpdrachtAfgewerkt() == false)){
+					detailTicket.setOpdrachtgever(mainTicket.getOpdrachtgever().getBedrijfsNaam());
+					detailTicket.setInterneOpmerkingen(detailTicket.getInterneOpmerkingen()+ " " + mainTicket.getVraagKlant());
+					inoxEntityList.add(detailTicket);
+				}
+			}
+		}
+		return inoxEntityList;
+
 	}
 }

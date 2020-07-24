@@ -8,6 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import com.biprom.bram.backend.data.entity.mongodbEntities.Personeel;
+import com.biprom.bram.backend.mongoRepositories.PersoneelRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,6 +32,9 @@ import com.biprom.bram.backend.data.entity.User;
 
 @SpringComponent
 public class DataGenerator implements HasLogger {
+
+	@Autowired
+	PersoneelRepository personeelRepository;
 
 	private static final String[] FILLING = new String[] { "Strawberry", "Chocolate", "Blueberry", "Raspberry",
 			"Vanilla" };
@@ -112,7 +118,7 @@ public class DataGenerator implements HasLogger {
 				orders.add(createOrder(dueDate));
 			}
 		}
-		orderRepository.saveAll(orders);
+//		orderRepository.saveAll(orders);
 	}
 
 	private Order createOrder(LocalDate dueDate) {
@@ -317,12 +323,13 @@ public class DataGenerator implements HasLogger {
 	}
 
 	private void createUsers(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-		baker = userRepository.save(new User("baker@vaadin.com", "Heidi", passwordEncoder.encode("baker"), Role.BAKER));
-		User user = new User("barista@vaadin.com", "Malin", passwordEncoder.encode("barista"), Role.BARISTA);
-		user.setLocked(true);
-		barista = userRepository.save(user);
-		user = new User("admin@vaadin.com", "Göran", passwordEncoder.encode("admin"), Role.ADMIN);
-		user.setLocked(true);
-		userRepository.save(user);
+		List<Personeel>personeelList = personeelRepository.findAll();
+		for(Personeel personeel : personeelList){
+			User user = new User(personeel.getInlogNaam(), personeel.getVoorNaam()+ " " + personeel.getAchterNaam(), passwordEncoder.encode(personeel.getInlogNaam()), Role.ADMIN);
+			user.setLocked(true);
+			userRepository.save(user);
+		}
+
+
 	}
 }

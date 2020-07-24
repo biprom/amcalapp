@@ -42,4 +42,8 @@ public class HerstellingDataProvider {
 	public List<DetailTicket>getAllDetailsToVoorbereiding(){
 		return herstellingService.getAllDetailsToVoorbereiding();
 	}
+
+	public List<DetailTicket>getAllDetailsToInox(){
+		return herstellingService.getAllDetailsToInox();
+	}
 }

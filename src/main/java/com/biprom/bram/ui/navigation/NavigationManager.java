@@ -58,6 +58,11 @@ public class NavigationManager extends SpringNavigator {
 		navigateTo(viewId + "/" + amNummer+ "/" + opdrachtgever);
 	}
 
+	public void navigateTo(Class<? extends View> targetView, String amNummer, String opdrachtgever, String checkListType) {
+		String viewId = getViewId(targetView);
+		navigateTo(viewId + "/" + amNummer+ "/" + opdrachtgever+ "/" + checkListType);
+	}
+
 	public void navigateToDefaultView() {
 		// If the user wants a specific view, it's in the URL.
 		// Otherwise admin goes to DashboardView and everybody else to

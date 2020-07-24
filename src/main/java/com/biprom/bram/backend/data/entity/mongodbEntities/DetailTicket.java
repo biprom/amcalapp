@@ -181,6 +181,8 @@ public class DetailTicket implements Comparable, Cloneable {
         private LocalDate deadLine;
         @JsonIgnore
         private String title;
+        @JsonIgnore
+        private String laatsteStatus = "";
 
 
 
@@ -1043,6 +1045,14 @@ public class DetailTicket implements Comparable, Cloneable {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getLaatsteStatus() {
+        return laatsteStatus;
+    }
+
+    public void setLaatsteStatus(String laatsteStatus) {
+        this.laatsteStatus = laatsteStatus;
     }
 }
 

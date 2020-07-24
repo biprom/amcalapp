@@ -60,11 +60,63 @@ $app-background-image: url('bg.jpg');
     display: inline-block;
     text-align: center;
   }
-
+  .v-button.alGestart-button {
+    background: darkorange;
+    color : white;
+  }
   .v-select-optiongroup.optionGroupRedStyle{
     color: red;
   }
   .v-select-optiongroup.optionGroupGreenStyle{
     background: greenyellow;
+  }
+  .v-horizontallayout.hLayoutRedStyle{
+    background: red;
+  }
+  .v-horizontallayout.hLayoutGreenStyle{
+    background: greenyellow;
+  }
+
+  .v-grid-row.my_red_style_grid > td {
+    background-color: #FF6d73;
+  }
+
+  .v-grid-row.my_blue_style_grid > td {
+    background-color: lightblue;
+  }
+
+  .v-grid-row.my_brown_style_grid > td {
+    background-color: #CD853F;
+  }
+
+
+  .v-grid-row.my_green_style_grid > td {
+    background-color: greenyellow;
+  }
+
+  .v-grid-row.my_yellow_style_grid > td {
+    background-color: greenyellow;
+  }
+
+  .v-textfield.my_red_style {
+    background: #FF9999;
+    font-weight: bold;
+    font-size: 15px;
+  }
+
+  .v-textfield.my_yellow_style {
+    background: yellow;
+    font-weight: bold;
+    font-size: 15px;
+  }
+
+  .v-textfield.my_green_style {
+    background: #E5FFCC;
+    font-weight: bold;
+    font-size: 15px;
+  }
+
+  .my_bold_style{
+    font-weight: bold;
   }
 }

@@ -4,24 +4,21 @@ package com.biprom.bram.ui.views.checkList;
 import com.biprom.bram.backend.data.entity.mongodbEntities.CheckListBestek;
 import com.biprom.bram.backend.data.entity.mongodbEntities.DetailTicket;
 import com.biprom.bram.backend.data.entity.mongodbEntities.MainTicket;
+import com.biprom.bram.backend.data.entity.mongodbEntities.Product;
 import com.biprom.bram.backend.mongoRepositories.MainTicketRepository;
 import com.biprom.bram.backend.mongoRepositories.PersoneelRepository;
 import com.biprom.bram.ui.views.CheckListDesign;
 import com.vaadin.data.Binder;
-import com.vaadin.data.converter.StringToIntegerConverter;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.FileResource;
+import com.vaadin.shared.ui.ValueChangeMode;
 import com.vaadin.spring.annotation.SpringView;
-import com.vaadin.ui.CheckBoxGroup;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.Notification;
+import com.vaadin.ui.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @SpringView(name = "checkList")
@@ -35,6 +32,8 @@ public class CheckListView extends CheckListDesign implements View {
 
     Binder<CheckListBestek>checkListBestekBinder = new Binder<>(  );
     Binder<DetailTicket>detailTicketBinder = new Binder<>(  );
+    
+    List<Product>productList = new ArrayList<>();
 
     Iterator<String>stringIterator;
 
@@ -87,10 +86,202 @@ public class CheckListView extends CheckListDesign implements View {
         setUpCheckBoxGroupTechniekers();
         setUpCBPositieMagazijn();
         setUpPositieAansluitingen();
+        setUpRadioButtonsPompElktrMechOk();
         setUpBinder();
         setUpCBAansluitingen();
         setUpCheckBoxGroupValueChangeListeners();
+        setUpbChangeCheckList();
+        setUpGrid();
     }
+
+    private void setUpGrid() {
+
+            productGrid.addComponentColumn(e ->{
+            TextField tfChangeAantalVoorspeldOfferte = new TextField( "Geschat aantal" );
+            tfChangeAantalVoorspeldOfferte.setValue( e.getAantalVoorspeldOfferte().toString() );
+            String value = e.getBruto();
+            tfChangeAantalVoorspeldOfferte.addValueChangeListener( f -> {
+                try{
+                    e.setWerkelijkAantalVerbruikt( Double.valueOf( tfChangeAantalVoorspeldOfferte.getValue() ) );
+                    e.setAantalVoorspeldOfferte( Double.valueOf( tfChangeAantalVoorspeldOfferte.getValue() ) );
+                }
+                catch (Exception g){
+                    Notification.show("Aantal voorspeld offerte is niet ingevuld") ;
+                }
+
+            });
+            return tfChangeAantalVoorspeldOfferte;
+        }).setSortable( false ).setCaption( "Aantal voorspeld?" ).setId("geschataantal");
+
+        productGrid.addComponentColumn( e -> {
+            TextField tf = new TextField();
+            tf.setValue( e.getArtikelNummer()  );
+            if(e.getJaar().contains("2020")){
+                tf.setStyleName("my_green_style");
+            }
+            else{
+                tf.setStyleName("my_orange_style");
+            }
+            return tf;
+        } ).setSortable( false ).setCaption( "Artikelnummer" ).setId("Artikelnummer").setHidden( false );
+
+        productGrid.addComponentColumn(e -> {
+            TextField tfEigenOmschrijving = new TextField("Eigen omschrijving");
+            tfEigenOmschrijving.setWidth( "100%" );
+            if(e.getEigenOmschrijving() != null){
+                tfEigenOmschrijving.setValue(e.getEigenOmschrijving());
+            }
+            tfEigenOmschrijving.setValueChangeMode(ValueChangeMode.BLUR);
+            tfEigenOmschrijving.addValueChangeListener(f -> e.setEigenOmschrijving(f.getValue()));
+            productGrid.getDataProvider().refreshAll();
+            geslecteerdDetailTicket.setBenodigdheden((ArrayList<Product>) productList);
+            mainTicketRepository.save( geselecteerdMainTicket );
+            return tfEigenOmschrijving;
+        }).setSortable( false ).setCaption("Eigen omschrijving").setId( "eigen omschrijving" );
+
+        productGrid.addComponentColumn( e -> {
+            TextField tfVageOmschrijving = new TextField("Vage omschrijving");
+            tfVageOmschrijving.setWidth( "100%" );
+            if(e.getVageOmschrijving() !=null){
+                tfVageOmschrijving.setValue( e.getVageOmschrijving() );
+            }
+            tfVageOmschrijving.addValueChangeListener( f -> e.setVageOmschrijving( f.getValue() ) );
+//            tfVageOmschrijving.addBlurListener( f -> {
+//                if(!geselecteerdMateriaalLijst.get( geselecteerdMateriaalLijst.size() - 1 ).getVageOmschrijving().matches("" )){
+//                    geselecteerdMateriaalLijst.add( new Product() );
+//                    tbBenodigdMateriaal.setItems( geselecteerdMateriaalLijst );
+//                }
+//                else{
+//                    //Notification.show( "blurlistener does not work" );
+//                }
+//            } );
+            return tfVageOmschrijving;
+
+        } ).setSortable( false ).setCaption( "Vage omschrijivng" ).setId( "Vage omschrijving" );
+
+        productGrid.addComponentColumn( item -> {
+            CheckBox checkBox = new CheckBox(  );
+            if(item.getOptie() != null){
+                checkBox.setValue( item.getOptie() );
+            }
+            else{
+                checkBox.setValue( false );
+                item.setOptie( false );
+            }
+            checkBox.addValueChangeListener( e -> {
+                item.setOptie( e.getValue() );
+            } );
+            return checkBox;
+        } ).setSortable( false ).setCaption( "Als optie" ).setId( "optie" );
+
+        productGrid.addComponentColumn( item -> {
+            Button button = new Button("Voeg artikel toe");
+            button.addClickListener(x -> {
+                productList.add(new Product());
+                productGrid.getDataProvider().refreshAll();
+            });
+            button.setStyleName("primary");
+            return button;
+        });
+
+        productGrid.addComponentColumn( item -> {
+            Button button = new Button("Verwijder artikel");
+            button.addClickListener(x -> {
+                productList.remove(item);
+                productGrid.getDataProvider().refreshAll();
+                geslecteerdDetailTicket.setBenodigdheden((ArrayList<Product>) productList);
+                mainTicketRepository.save( geselecteerdMainTicket );
+            });
+            button.setStyleName("danger");
+            return button;
+        });
+
+
+    }
+
+    private void setUpRadioButtonsPompElktrMechOk() {
+
+        rbgMotorElektrisch.addValueChangeListener(x -> {
+            if(rbgMotorElektrisch.getValue().matches("NL_Motor Elektrisch in orde_NLFR_Moteur électrique OK_FR")){
+                vLayoutMotorElektrisch.setVisible(false);
+            }
+            if(rbgMotorElektrisch.getValue().matches("NL_Motor NIET Elektrisch in orde_NLFR_Moteur électrique NOK_FR")){
+                vLayoutMotorElektrisch.setVisible(true);
+            }
+        });
+
+
+        rbgMotorMechanisch.addValueChangeListener(x -> {
+            if(rbgMotorMechanisch.getValue().matches("NL_Motor Mechanisch in orde_NLFR_Moteur mécanique OK_FR")){
+                vLayoutMotorMechanisch.setVisible(false);
+            }
+            if(rbgMotorMechanisch.getValue().matches("NL_Motor Mechanisch NIET in orde_NLFR_Moteur mécanique NOK_FR")){
+                vLayoutMotorMechanisch.setVisible(true);
+            }
+        });
+    }
+
+    private void setUpbChangeCheckList() {
+        bChangeCheckList.addClickListener(x -> {
+            geslecteerdDetailTicket.getCheckListBestek().setAantastingen(formatString(geslecteerdDetailTicket.getCheckListBestek().getAantastingen()));
+            geslecteerdDetailTicket.getCheckListBestek().setAsafdichting(formatString(geslecteerdDetailTicket.getCheckListBestek().getAsafdichting()));
+            geslecteerdDetailTicket.getCheckListBestek().setBinnenwerk(formatString(geslecteerdDetailTicket.getCheckListBestek().getBinnenwerk()));
+            geslecteerdDetailTicket.getCheckListBestek().setContaminatie(formatString(geslecteerdDetailTicket.getCheckListBestek().getContaminatie()));
+            geslecteerdDetailTicket.getCheckListBestek().setControlBox(formatString(geslecteerdDetailTicket.getCheckListBestek().getControlBox()));
+            geslecteerdDetailTicket.getCheckListBestek().setDichtingen(formatString(geslecteerdDetailTicket.getCheckListBestek().getDichtingen()));
+            geslecteerdDetailTicket.getCheckListBestek().setGarantie(formatString(geslecteerdDetailTicket.getCheckListBestek().getGarantie()));
+            geslecteerdDetailTicket.getCheckListBestek().setIsolatieWeerstand(formatString(geslecteerdDetailTicket.getCheckListBestek().getIsolatieWeerstand()));
+            geslecteerdDetailTicket.getCheckListBestek().setKamers(formatString(geslecteerdDetailTicket.getCheckListBestek().getKamers()));
+            geslecteerdDetailTicket.getCheckListBestek().setLagers(formatString(geslecteerdDetailTicket.getCheckListBestek().getLagers()));
+            geslecteerdDetailTicket.getCheckListBestek().setMotorDichtingen(formatString(geslecteerdDetailTicket.getCheckListBestek().getMotorDichtingen()));
+            geslecteerdDetailTicket.getCheckListBestek().setMotorKabel(formatString(geslecteerdDetailTicket.getCheckListBestek().getMotorKabel()));
+            geslecteerdDetailTicket.getCheckListBestek().setMotorLagers(formatString(geslecteerdDetailTicket.getCheckListBestek().getMotorLagers()));
+            geslecteerdDetailTicket.getCheckListBestek().setMotorVerbrand(formatString(geslecteerdDetailTicket.getCheckListBestek().getMotorVerbrand()));
+            geslecteerdDetailTicket.getCheckListBestek().setPompas(formatString(geslecteerdDetailTicket.getCheckListBestek().getPompas()));
+            geslecteerdDetailTicket.getCheckListBestek().setPompBinnengebracht(formatString(geslecteerdDetailTicket.getCheckListBestek().getPompBinnengebracht()));
+            geslecteerdDetailTicket.getCheckListBestek().setPompstaat(formatString(geslecteerdDetailTicket.getCheckListBestek().getPompstaat()));
+            geslecteerdDetailTicket.getCheckListBestek().setPompStatus(formatString(geslecteerdDetailTicket.getCheckListBestek().getPompStatus()));
+            geslecteerdDetailTicket.getCheckListBestek().setRotorStatorFlens(formatString(geslecteerdDetailTicket.getCheckListBestek().getRotorStatorFlens()));
+
+            geslecteerdDetailTicket.getCheckListBestek().setSecundaireAsafdichting(formatString(geslecteerdDetailTicket.getCheckListBestek().getSecundaireAsafdichting()));
+            geslecteerdDetailTicket.getCheckListBestek().setSpaltringen(formatString(geslecteerdDetailTicket.getCheckListBestek().getSpaltringen()));
+            geslecteerdDetailTicket.getCheckListBestek().setVentilator(formatString(geslecteerdDetailTicket.getCheckListBestek().getVentilator()));
+            geslecteerdDetailTicket.getCheckListBestek().setVochtInMotor(formatString(geslecteerdDetailTicket.getCheckListBestek().getVochtInMotor()));
+            geslecteerdDetailTicket.getCheckListBestek().setWaaiers(formatString(geslecteerdDetailTicket.getCheckListBestek().getWaaiers()));
+            geslecteerdDetailTicket.getCheckListBestek().setWaterInMotor(formatString(geslecteerdDetailTicket.getCheckListBestek().getWaterInMotor()));
+            geslecteerdDetailTicket.getCheckListBestek().setWikkelingsWaardes(formatString(geslecteerdDetailTicket.getCheckListBestek().getWikkelingsWaardes()));
+
+            mainTicketRepository.save(geselecteerdMainTicket);
+
+        });
+    }
+
+    private Set<String> formatString(Set<String> collect) {
+
+            System.out.println("functie aangesproken");
+            Set<String> set = new HashSet();
+
+           List<String> newList = new ArrayList(collect);
+
+           if((newList.size()>1)&&(newList.get(0).toString().contains("FR"))){
+               Collections.swap(newList,0,1);
+               set.add(newList.subList(0,2).stream().collect(Collectors.joining()));
+           }
+           if((newList.size()>1)&&(newList.get(0).toString().contains("NL"))){
+               set.add(newList.subList(0,2).stream().collect(Collectors.joining()));
+           }
+
+            if((newList.size()>2)&&(newList.get(2).toString().contains("FR"))){
+                Collections.swap(newList,2,3);
+            }
+            if(newList.size()>2){
+                set.add(newList.subList(2,4).stream().collect(Collectors.joining()));
+            }
+            return set;
+
+
+    }
+
 
     private void setUpCBAansluitingen() {
 
@@ -126,6 +317,10 @@ public class CheckListView extends CheckListDesign implements View {
         checkbGroupTechniekers.setItems( personeelRepository.findAll().stream().collect( Collectors.toSet()));
         checkbGroupTechniekers.setItemDescriptionGenerator( x -> x.getVoorNaam() + " " + x.getAchterNaam() );
         checkbGroupTechniekers.setItemCaptionGenerator( x -> x.getInlogNaam() );
+
+        checkbGroupTechniekersHersteld.setItems( personeelRepository.findAll().stream().collect( Collectors.toSet()));
+        checkbGroupTechniekersHersteld.setItemDescriptionGenerator( x -> x.getVoorNaam() + " " + x.getAchterNaam() );
+        checkbGroupTechniekersHersteld.setItemCaptionGenerator( x -> x.getInlogNaam() );
     }
 
     @Override
@@ -143,13 +338,40 @@ public class CheckListView extends CheckListDesign implements View {
         } else {
             titleLabel.setValue(  parameters[0] + " : " +  parameters[1]);
             vraagKlantLabel.setValue( "Opdracht van klant : " +geselecteerdMainTicket.getVraagKlant() );
+            hideCertainFields(parameters[2]);
         }
         geslecteerdDetailTicket = geselecteerdMainTicket.getDetails().stream().filter( x -> x.getamNummer().matches( parameters[0] ) ).findFirst().get();
         checkListBestekBinder.setBean( geslecteerdDetailTicket.getCheckListBestek() );
         detailTicketBinder.setBean( geslecteerdDetailTicket );
+        if(geslecteerdDetailTicket.getBenodigdheden() != null){
+            productList = geslecteerdDetailTicket.getBenodigdheden();
+        }
+        productGrid.setItems(productList);
 
-        checkMotorOfPompOK();
+    }
 
+    private void hideCertainFields(String parameter) {
+        switch (parameter){
+            case "CheckListFase.VOORBEREIDING":
+                Notification.show("Voorbereiding");
+                vLayoutMain.setEnabled(false);
+                break;
+            case "CheckListFase.DEMONTAGE":
+                Notification.show("Demontage");
+                checkbGroupTechniekersHersteld.setEnabled(false);
+                vLayoutHerstelling.setEnabled(false);
+                break;
+            case "CheckListFase.HERSTELLING":
+                Notification.show("Herstelling");
+                checkbGroupTechniekers.setEnabled(false);
+                hLayoutAansluitingen.setEnabled(false);
+                hLaytoutMotorElektrischInOrde.setEnabled(false);
+                vLayoutMotorElektrisch.setEnabled(false);
+                vLayoutMotorMechanisch.setEnabled(false);
+                vLayoutPompeigenschappen.setEnabled(false);
+                vLayoutDemontage.setEnabled(false);
+                break;
+        }
     }
 
     private void setUpCBPositieMagazijn() {
@@ -166,8 +388,11 @@ public class CheckListView extends CheckListDesign implements View {
     }
 
     private void setUpBinder() {
+
         checkListBestekBinder.forField( checkbGroupTechniekers )
                 .bind( x -> x.getGedemonteerdDoorList().stream().collect( Collectors.toSet()),(x, y)-> x.setGedemonteerdDoorList( y.stream().collect( Collectors.toList()) )  );
+        checkListBestekBinder.forField( checkbGroupTechniekersHersteld )
+                .bind( x -> x.getHersteldDoorList().stream().collect( Collectors.toSet()),(x, y)-> x.setHersteldDoorList( y.stream().collect( Collectors.toList()) )  );
         checkListBestekBinder.forField( cbgEUPallet )
                 .bind(x -> x.getBinnengebrachtOp(),(x,y) -> x.setBinnengebrachtOp( y ) );
         checkListBestekBinder.forField( tfBinnengebrachtAndereManier )
@@ -188,10 +413,16 @@ public class CheckListView extends CheckListDesign implements View {
                 .bind( CheckListBestek::getUitgebreidPompType, CheckListBestek::setUitgebreidPompType );
         checkListBestekBinder.forField( tfArtikelNummerPomp )
                 .bind( CheckListBestek::getArtikelNummerPomp, CheckListBestek::setArtikelNummerPomp );
+        checkListBestekBinder.forField(tfPompVermogen)
+                .bind(CheckListBestek::getVermogenPomp, CheckListBestek::setVermogenPomp );
         checkListBestekBinder.forField( tfProductDatumPomp )
                 .bind( CheckListBestek::getProductieDatumPomp, CheckListBestek::setProductieDatumPomp );
         checkListBestekBinder.forField( tfSerieNummerPomp )
                 .bind( CheckListBestek::getSerieNummerPomp, CheckListBestek::setSerieNummerPomp );
+        checkListBestekBinder.forField( tfQnom )
+                .bind( CheckListBestek::getqNomPomp, CheckListBestek::setqNomPomp );
+        checkListBestekBinder.forField( tfHnom )
+                .bind( CheckListBestek::gethNomPomp, CheckListBestek::sethNomPomp );
         checkListBestekBinder.forField( tfLandPomp )
                 .bind( CheckListBestek::getPompLand, CheckListBestek::setPompLand );
         checkListBestekBinder.forField( tfMotorType )
@@ -220,13 +451,19 @@ public class CheckListView extends CheckListDesign implements View {
                 .bind( CheckListBestek::getRfase2, CheckListBestek::setRfase2 );
         checkListBestekBinder.forField( tfRfase3 )
                 .bind( CheckListBestek::getRfase3, CheckListBestek::setRfase3 );
-        checkListBestekBinder.forField( cbgMotorElektrischInOrde )
-                .bind( x -> x.getMotorMechElektrInOrde().stream().collect( Collectors.toSet()),(x, y)-> x.setMotorMechElektrInOrde( y ) );
-
+        checkListBestekBinder.forField( rbgMotorElektrisch )
+                .bind(( x -> x.getMotorElekrischInOrde()),(x, y)-> x.setMotorElekrischInOrde( y ) );
+        checkListBestekBinder.forField( rbgMotorMechanisch )
+                .bind( x -> x.getMotorMechanischInOrde(),(x, y)-> x.setMotorMechanischInOrde( y ) );
         checkListBestekBinder.forField( cbgIsolatieweerstand )
                 .bind( x -> x.getIsolatieWeerstand().stream().collect( Collectors.toSet()),(x, y)-> x.setIsolatieWeerstand( y )  );
         checkListBestekBinder.forField( cbgWikkelingswaardes )
                 .bind( x -> x.getWikkelingsWaardes().stream().collect( Collectors.toSet()),(x, y)-> x.setWikkelingsWaardes( y )  );
+        checkListBestekBinder.forField( cbgWikkelingswaardes )
+                .bind( x -> x.getWikkelingsWaardes().stream().collect( Collectors.toSet()),(x, y)-> x.setWikkelingsWaardes( y )  );
+        checkListBestekBinder.forField( cbgWikkelingswaardes )
+                .bind( x -> x.getWikkelingsWaardes().stream().collect( Collectors.toSet()),(x, y)-> x.setWikkelingsWaardes( y )  );
+
         checkListBestekBinder.forField( cbgMotorVerbrand )
                 .bind( x -> x.getMotorVerbrand().stream().collect( Collectors.toSet()),(x, y)-> x.setMotorVerbrand( y )  );
         checkListBestekBinder.forField( cbgControlBox )
@@ -335,6 +572,19 @@ public class CheckListView extends CheckListDesign implements View {
                 .bind( x -> x.getMeetresultaatDruk(), (x,y) -> x.setMeetresultaatDruk( y ) );
         checkListBestekBinder.forField( tfDebietVuilWater )
                 .bind( x -> x.getDrukTestVuilwaterDruk(), (x,y) -> x.setDrukTestVuilwaterDruk( y ) );
+        checkListBestekBinder.forField(checkbGeenNabehandeling)
+                .bind(CheckListBestek::isGnNabehandeling, (x,y)-> x.setGnNabehandeling(y));
+        checkListBestekBinder.forField(checkbHerschilderen)
+                .bind(CheckListBestek::isHerschilderen, (x,y)-> x.setHerschilderen(y));
+        checkListBestekBinder.forField(checkbZandstralen)
+                .bind(CheckListBestek::isZandstralenEnHerschilderen, (x,y)-> x.setZandstralenEnHerschilderen(y));
+        checkListBestekBinder.forField(checkbGeenLogo)
+                .bind(CheckListBestek::isbGeenLogoPlaatsen, (x,y)-> x.setbGeenLogoPlaatsen(y));
+        detailTicketBinder.forField(checkbDemontageAfgewerkt)
+                .bind(DetailTicket::isbTeDemonteren, (x,y)-> x.setbTeDemonteren(y));
+        detailTicketBinder.forField(checkbDirectTeHerstellen)
+                .bind(DetailTicket::isbDirectTeHerstellen, (x,y)-> x.setbDirectTeHerstellen(y));
+
 
         checkListBestekBinder.addValueChangeListener( x -> {
             mainTicketRepository.save( geselecteerdMainTicket );
@@ -344,37 +594,6 @@ public class CheckListView extends CheckListDesign implements View {
         } );
     }
 
-    public void checkMotorOfPompOK(){
-
-        if(bNoDoubleEvents == false) {
-
-        bNoDoubleEvents = true;
-            stringIterator = cbgMotorElektrischInOrde.getValue().iterator();
-            while (stringIterator.hasNext()) {
-                String stringToCompare = stringIterator.next();
-
-                if (stringToCompare.matches("Moteur électrique OK")) {
-                    vLayoutMotorElektrisch.setVisible(false);
-                    cbgMotorElektrischInOrde.deselect("Moteur électrique NOK");
-                } else if (stringToCompare.matches("Moteur électrique NOK")) {
-                    vLayoutMotorElektrisch.setVisible(true);
-                    cbgMotorElektrischInOrde.deselect("Moteur électrique OK");
-                    //cbgMotorElektrischInOrde.setStyleName("horizontal optionGroupRedStyle");
-                }
-                if (stringToCompare.matches("Moteur mécanique OK")) {
-                    vLayoutMotorMechanisch.setVisible(false);
-                    cbgMotorElektrischInOrde.deselect("Moteur mécanique NOK");
-                } else if (stringToCompare.matches("Moteur mécanique NOK")) {
-                    vLayoutMotorMechanisch.setVisible(true);
-                    cbgMotorElektrischInOrde.deselect("Moteur mécanique OK");
-                    //cbgMotorElektrischInOrde.setStyleName("horizontal optionGroupGreenStyle");
-                }
-            }
-            bNoDoubleEvents = false;
-        }
-
-
-    }
 
     private String getProperName(String toConvert) {
         String returnValue = "";
@@ -486,15 +705,22 @@ public class CheckListView extends CheckListDesign implements View {
         }
     }
     private void setUpCheckBoxGroupValueChangeListeners() {
-        cbgMotorElektrischInOrde.addValueChangeListener(x -> {
+        rbgMotorElektrisch.addValueChangeListener(x -> {
 
-            checkMotorOfPompOK();
-
-            if(cbgMotorElektrischInOrde.getValue().isEmpty()){
-                cbgMotorElektrischInOrde.setStyleName("horizontal optionGroupRedStyle");
+            if(rbgMotorElektrisch.getValue().isEmpty()){
+                rbgMotorElektrisch.setStyleName("horizontal optionGroupRedStyle");
             }
             else{
-                cbgMotorElektrischInOrde.setStyleName("horizontal optionGroupGreenStyle");
+                rbgMotorElektrisch.setStyleName("horizontal optionGroupGreenStyle");
+            }
+        });
+        rbgMotorMechanisch.addValueChangeListener(x -> {
+
+            if(rbgMotorMechanisch.getValue().isEmpty()){
+                rbgMotorMechanisch.setStyleName("horizontal optionGroupRedStyle");
+            }
+            else{
+                rbgMotorMechanisch.setStyleName("horizontal optionGroupGreenStyle");
             }
         });
         cbgIsolatieweerstand.addValueChangeListener(x -> {
@@ -503,6 +729,14 @@ public class CheckListView extends CheckListDesign implements View {
             }
             else{
                 cbgIsolatieweerstand.setStyleName("horizontal optionGroupGreenStyle");
+            }
+        });
+        cbgWikkelingswaardes.addValueChangeListener(x -> {
+            if(cbgWikkelingswaardes.getValue().isEmpty()){
+                cbgWikkelingswaardes.setStyleName("horizontal optionGroupRedStyle");
+            }
+            else{
+                cbgWikkelingswaardes.setStyleName("horizontal optionGroupGreenStyle");
             }
         });
         cbgMotorVerbrand.addValueChangeListener(x -> {
@@ -578,6 +812,16 @@ public class CheckListView extends CheckListDesign implements View {
                 cbgBeschadingMotor.setStyleName("horizontal optionGroupGreenStyle");
             }
         });
+
+        cbgGarantie.addValueChangeListener(x -> {
+            if(cbgGarantie.getValue().isEmpty()){
+                cbgGarantie.setStyleName("horizontal optionGroupRedStyle");
+            }
+            else{
+                cbgGarantie.setStyleName("horizontal optionGroupGreenStyle");
+            }
+        });
+
         cbgBinnengebrachtPomp.addValueChangeListener(x -> {
             if(cbgBinnengebrachtPomp.getValue().isEmpty()){
                 cbgBinnengebrachtPomp.setStyleName("horizontal optionGroupRedStyle");
@@ -690,15 +934,28 @@ public class CheckListView extends CheckListDesign implements View {
                 cbgStatusPomp.setStyleName("horizontal optionGroupGreenStyle");
             }
         });
-        cbgPompBehandeling.addValueChangeListener(x -> {
-            if(cbgPompBehandeling.getValue().isEmpty()){
-                cbgPompBehandeling.setStyleName("horizontal optionGroupRedStyle");
-            }
-            else{
-                cbgPompBehandeling.setStyleName("horizontal optionGroupGreenStyle");
-            }
+        checkbGeenNabehandeling.addValueChangeListener(x -> {
+            checkIfNabehandelingIsOk();
         });
-
+                checkbHerschilderen.addValueChangeListener(x -> {
+                    checkIfNabehandelingIsOk();
+                });
+        checkbZandstralen.addValueChangeListener(x -> {
+            checkIfNabehandelingIsOk();
+        });
+                checkbGeenLogo.addValueChangeListener(x -> {
+                    checkIfNabehandelingIsOk();
+                });
     }
+
+    private void checkIfNabehandelingIsOk() {
+        if(checkbGeenNabehandeling.getValue() || checkbHerschilderen.getValue() || checkbZandstralen.getValue() || checkbGeenLogo.getValue()) {
+            hLayoutNabehandeling.setStyleName("hLayoutGreenStyle");
+        }
+        else{
+            hLayoutNabehandeling.setStyleName("hLayoutRedStyle");
+        }
+    }
+
 
 }
