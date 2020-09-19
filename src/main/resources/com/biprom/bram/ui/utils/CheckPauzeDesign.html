@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+ <head>
+  <meta charset="UTF-8">
+  <meta name="design-properties" content="{&quot;RULERS_VISIBLE&quot;:true,&quot;GUIDELINES_VISIBLE&quot;:false,&quot;SNAP_TO_OBJECTS&quot;:true,&quot;SNAP_TO_GRID&quot;:true,&quot;SNAPPING_DISTANCE&quot;:10,&quot;GENERATE_GETTERS&quot;:false,&quot;JAVA_SOURCES_ROOT&quot;:&quot;src/main/java&quot;,&quot;THEME&quot;:&quot;apptheme&quot;}">
+  <meta name="vaadin-version" content="8.1.5">
+ </head>
+ <body>
+  <vaadin-vertical-layout>
+   <vaadin-vertical-layout size-auto>
+    <vaadin-label style-name="h2" plain-text>
+      Werkuren Atelier 
+    </vaadin-label>
+    <vaadin-label style-name="h3" plain-text>
+      Uw tijdslot voor dit AM- nummer is : 
+    </vaadin-label>
+    <vaadin-label style-name="h3" plain-text _id="lbTijdslot">
+      Geen gegevens 
+    </vaadin-label>
+    <vaadin-label style-name="h3" plain-text _id="lbTotaalTijdSlot">
+      Geen gegevens 
+    </vaadin-label>
+    <vaadin-label style-name="h3" plain-text>
+      Heeft u middagpauze genomen tijdens deze uitvoeringstijd? 
+    </vaadin-label>
+    <vaadin-horizontal-layout>
+     <vaadin-button style-name="friendly" width-full plain-text _id="bPauzeGenomen">
+       Pauze genomen 
+     </vaadin-button>
+     <vaadin-button style-name="danger" width-full plain-text _id="bGeenPauzeGenomen">
+       Geen Pauze genomen 
+     </vaadin-button>
+    </vaadin-horizontal-layout>
+   </vaadin-vertical-layout>
+  </vaadin-vertical-layout>
+ </body>
+</html>

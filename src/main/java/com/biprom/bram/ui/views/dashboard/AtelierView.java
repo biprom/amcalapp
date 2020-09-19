@@ -2,13 +2,17 @@ package com.biprom.bram.ui.views.dashboard;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
 import com.biprom.bram.backend.data.entity.mongodbEntities.DetailTicket;
+import com.biprom.bram.backend.data.entity.mongodbEntities.MainTicket;
 import com.biprom.bram.backend.data.entity.mongodbEntities.Personeel;
+import com.biprom.bram.backend.mongoRepositories.MainTicketRepository;
 import com.biprom.bram.backend.mongoRepositories.PersoneelRepository;
 import com.biprom.bram.ui.components.HerstellingDataProvider;
 import com.biprom.bram.ui.components.ProjectGrid;
@@ -36,12 +40,9 @@ import com.biprom.bram.ui.navigation.NavigationManager;
 @SpringView
 public class AtelierView extends AtelierDesign implements View {
 
-	private static final String DELIVERIES = "Deliveries";
-
-	private static final String BOARD_ROW_PANELS = "board-row-panels";
-
 	PersoneelRepository personeelRepository;
 	InoxSubView inoxSubView;
+	MainTicketRepository mainTicketRepository;
 
 	Personeel geslecteerdPersoneel;
 
@@ -81,7 +82,8 @@ public class AtelierView extends AtelierDesign implements View {
 					   BatchGrid demontageGrid,
 					   ProjectGrid inoxGrid,
 					   PersoneelRepository personeelRepository,
-					   InoxSubView inoxSubView) {
+					   InoxSubView inoxSubView,
+					   MainTicketRepository mainTicketRepository) {
 
 		this.navigationManager = navigationManager;
 		this.herstellingDataProvider = herstellingDataProvider;
@@ -91,6 +93,7 @@ public class AtelierView extends AtelierDesign implements View {
 		this.voorbereidingGrid = voorbereidingGrid;
 		this.inoxGrid = inoxGrid;
 		this.inoxSubView = inoxSubView;
+		this.mainTicketRepository = mainTicketRepository;
 
 
 		teHerstellenGrid.setHeight( "600px" );
@@ -98,15 +101,15 @@ public class AtelierView extends AtelierDesign implements View {
 		voorbereidingGrid.setHeight( "600px" );
 		inoxGrid.setHeight("600px");
 
-		Label labelHerstellen = new Label( "Te Herstellen" );
-		labelHerstellen.setStyleName( "h2" );
-		vLayoutGrid.addComponent( labelHerstellen);
-		vLayoutGrid.addComponent(teHerstellenGrid);
-
 		Label labelDemontage = new Label( "Demontage" );
 		labelDemontage.setStyleName( "h2" );
 		vLayoutGrid.addComponent( labelDemontage );
 		vLayoutGrid.addComponent( demontageGrid );
+
+		Label labelHerstellen = new Label( "Te Herstellen" );
+		labelHerstellen.setStyleName( "h2" );
+		vLayoutGrid.addComponent( labelHerstellen);
+		vLayoutGrid.addComponent(teHerstellenGrid);
 
 		Label labelVoorbereiding = new Label( "Voorbereidig" );
 		labelVoorbereiding.setStyleName( "h2" );
@@ -174,6 +177,83 @@ public class AtelierView extends AtelierDesign implements View {
 		demontageGrid.addSelectionListener( e -> selectedOrder(e.getFirstSelectedItem().get(), "CheckListFase.DEMONTAGE"));
 		teHerstellenGrid.addSelectionListener(e -> selectedOrder(e.getFirstSelectedItem().get(), "CheckListFase.HERSTELLING"));
 		inoxGrid.addSelectionListener(e -> selectedProject(e.getFirstSelectedItem().get()));
+
+		bipromButton.addClickListener(x -> {
+			List<MainTicket>mainTicketList = mainTicketRepository.findByDetails_BHerstellingBestek(true);
+			for(MainTicket mainTicket : mainTicketList){
+				for(DetailTicket detailTicketToCheck : mainTicket.getDetails()){
+					if(detailTicketToCheck.isbHerstellingBestek() == true){
+						detailTicketToCheck.getCheckListBestek().setAantastingen(formatString(detailTicketToCheck.getCheckListBestek().getAantastingen()));
+						detailTicketToCheck.getCheckListBestek().setAsafdichting(formatString(detailTicketToCheck.getCheckListBestek().getAsafdichting()));
+						detailTicketToCheck.getCheckListBestek().setBinnenwerk(formatString(detailTicketToCheck.getCheckListBestek().getBinnenwerk()));
+						detailTicketToCheck.getCheckListBestek().setContaminatie(formatString(detailTicketToCheck.getCheckListBestek().getContaminatie()));
+						detailTicketToCheck.getCheckListBestek().setControlBox(formatString(detailTicketToCheck.getCheckListBestek().getControlBox()));
+						detailTicketToCheck.getCheckListBestek().setDichtingen(formatString(detailTicketToCheck.getCheckListBestek().getDichtingen()));
+						detailTicketToCheck.getCheckListBestek().setGarantie(formatString(detailTicketToCheck.getCheckListBestek().getGarantie()));
+						detailTicketToCheck.getCheckListBestek().setIsolatieWeerstand(formatString(detailTicketToCheck.getCheckListBestek().getIsolatieWeerstand()));
+						detailTicketToCheck.getCheckListBestek().setKamers(formatString(detailTicketToCheck.getCheckListBestek().getKamers()));
+						detailTicketToCheck.getCheckListBestek().setLagers(formatString(detailTicketToCheck.getCheckListBestek().getLagers()));
+						detailTicketToCheck.getCheckListBestek().setMotorDichtingen(formatString(detailTicketToCheck.getCheckListBestek().getMotorDichtingen()));
+						detailTicketToCheck.getCheckListBestek().setMotorKabel(formatString(detailTicketToCheck.getCheckListBestek().getMotorKabel()));
+						detailTicketToCheck.getCheckListBestek().setMotorLagers(formatString(detailTicketToCheck.getCheckListBestek().getMotorLagers()));
+						detailTicketToCheck.getCheckListBestek().setMotorVerbrand(formatString(detailTicketToCheck.getCheckListBestek().getMotorVerbrand()));
+						detailTicketToCheck.getCheckListBestek().setPompas(formatString(detailTicketToCheck.getCheckListBestek().getPompas()));
+						detailTicketToCheck.getCheckListBestek().setPompBinnengebracht(formatString(detailTicketToCheck.getCheckListBestek().getPompBinnengebracht()));
+						detailTicketToCheck.getCheckListBestek().setPompstaat(formatString(detailTicketToCheck.getCheckListBestek().getPompstaat()));
+						detailTicketToCheck.getCheckListBestek().setPompStatus(formatString(detailTicketToCheck.getCheckListBestek().getPompStatus()));
+						detailTicketToCheck.getCheckListBestek().setRotorStatorFlens(formatString(detailTicketToCheck.getCheckListBestek().getRotorStatorFlens()));
+
+						detailTicketToCheck.getCheckListBestek().setSecundaireAsafdichting(formatString(detailTicketToCheck.getCheckListBestek().getSecundaireAsafdichting()));
+						detailTicketToCheck.getCheckListBestek().setSpaltringen(formatString(detailTicketToCheck.getCheckListBestek().getSpaltringen()));
+						detailTicketToCheck.getCheckListBestek().setVentilator(formatString(detailTicketToCheck.getCheckListBestek().getVentilator()));
+						detailTicketToCheck.getCheckListBestek().setVochtInMotor(formatString(detailTicketToCheck.getCheckListBestek().getVochtInMotor()));
+						detailTicketToCheck.getCheckListBestek().setWaaiers(formatString(detailTicketToCheck.getCheckListBestek().getWaaiers()));
+						detailTicketToCheck.getCheckListBestek().setWaterInMotor(formatString(detailTicketToCheck.getCheckListBestek().getWaterInMotor()));
+						detailTicketToCheck.getCheckListBestek().setWikkelingsWaardes(formatString(detailTicketToCheck.getCheckListBestek().getWikkelingsWaardes()));
+
+					}
+				}
+				mainTicketRepository.save(mainTicket);
+				System.out.println(mainTicket.getTicketNummer() + " is aangepast!!!");
+			}
+
+		});
+	}
+
+	private Set<String> formatString(Set<String> collect) {
+
+		Set<String> set = new HashSet();
+
+		try {
+
+			List<String> receivedList = new ArrayList(collect);
+
+			if(receivedList.size() > 1) {
+				while (receivedList.size() > 0) {
+
+					String string1 = receivedList.stream().filter(x -> x.contains("NL")).findFirst().get();
+					String string2 = receivedList.stream().filter(x -> x.contains("FR")).reduce((first, second) -> second).get();
+					set.add(string1 + string2);
+					receivedList.remove(string1);
+					receivedList.remove(string2);
+
+				}
+			}
+			else{
+				try {
+					String string1 = "NL_" + receivedList.get(0) + "_NL";
+					set.add(string1);
+				}
+				catch (Exception e){
+
+				}
+			}
+		}
+		catch (Exception e){
+
+		}
+
+		return set;
 	}
 
 
@@ -220,6 +300,7 @@ public class AtelierView extends AtelierDesign implements View {
 				demontageGrid.setGeslecteerdPersoneel(personeel);
 				voorbereidingGrid.setGeslecteerdPersoneel(personeel);
 				teHerstellenGrid.setGeslecteerdPersoneel(personeel);
+				inoxGrid.setGeslecteerdPersoneel(personeel);
 				button.setStyleName( "friendly" );
 			} );
 
@@ -250,6 +331,9 @@ public class AtelierView extends AtelierDesign implements View {
 
 		voorbereidingGrid.setPersoneelButtons(techniekerButtonList);
 		voorbereidingGrid.setPersoneelLabels(labelList);
+
+		inoxGrid.setPersoneelButtons(techniekerButtonList);
+		inoxGrid.setPersoneelLabels(labelList);
 
 	}
 

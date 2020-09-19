@@ -31,13 +31,13 @@
      </vaadin-combo-box>
      <vaadin-text-field caption="Ander Positie" _id="tfAnderePositie"></vaadin-text-field>
     </vaadin-horizontal-layout>
-    <vaadin-horizontal-layout width-full margin _id="hLayoutAansluitingen">
+    <vaadin-horizontal-layout width-full height="200px" _id="hLayoutAansluitingen">
      <vaadin-combo-box caption="Elektrische Aansluiting" data-item-type="java.lang.String" _id="cbElektrischeAansluiting"></vaadin-combo-box>
-     <vaadin-image _id="imgElektrischeAansluiting" :bottom :center></vaadin-image>
+     <vaadin-image size-full _id="imgElektrischeAansluiting" :bottom :center></vaadin-image>
      <vaadin-combo-box caption="Ontluchting" data-item-type="java.lang.String" _id="cbZijdeOntluchting"></vaadin-combo-box>
-     <vaadin-image _id="imgOntluchtingAansluiting" :bottom :center></vaadin-image>
+     <vaadin-image size-full _id="imgOntluchtingAansluiting" :bottom :center></vaadin-image>
      <vaadin-combo-box caption="Montageplaten" data-item-type="java.lang.String" _id="cbMontagePlaten"></vaadin-combo-box>
-     <vaadin-image _id="imgMontagePlatenAansluiting" :bottom :center></vaadin-image>
+     <vaadin-image size-full _id="imgMontagePlatenAansluiting" :bottom :center></vaadin-image>
     </vaadin-horizontal-layout>
     <vaadin-text-area caption="Bijkomend commentaar Pomp" width-full _id="taBijkomendCommentaarPomp"></vaadin-text-area>
     <vaadin-horizontal-layout width-full margin>
@@ -315,6 +315,9 @@
      </vaadin-horizontal-layout>
     </vaadin-vertical-layout>
     <vaadin-vertical-layout size-full _id="vGridLayout">
+     <vaadin-button icon="fonticon://Vaadin-Icons/e687" style-name="primary" plain-text _id="bGenereerMateriaalLijst">
+       Geneer materiaallijst 
+     </vaadin-button>
      <vaadin-grid height-mode="undefined" width-full data-item-type="com.biprom.bram.backend.data.entity.mongodbEntities.Product" _id="productGrid"></vaadin-grid>
     </vaadin-vertical-layout>
     <vaadin-horizontal-layout>
@@ -331,9 +334,6 @@
       <vaadin-text-field caption="Uren herstelling" _id="tfUrenHerstelling"></vaadin-text-field>
       <vaadin-text-field caption="Uren reinigen" _id="tfUrenReinigen"></vaadin-text-field>
       <vaadin-check-box caption="Herstelling Afgewerkt" description="Selectie na Herstellen pomp" _id="checkbHerstellingAfgewerkt"></vaadin-check-box>
-      <vaadin-button style-name="danger" plain-text _id="bChangeCheckList">
-        changeCheckList 
-      </vaadin-button>
      </vaadin-vertical-layout>
      <vaadin-vertical-layout size-auto>
       <vaadin-text-field caption="Debiet [m3/h]" description="Debiet [m3/h]" _id="tfDebiet"></vaadin-text-field>
@@ -341,6 +341,49 @@
       <vaadin-text-field caption="Druktest vuilwater [bar]" _id="tfDebietVuilWater"></vaadin-text-field>
      </vaadin-vertical-layout>
     </vaadin-horizontal-layout>
+    <vaadin-upload button-caption="Voeg foto aan ticket" icon="fonticon://Vaadin-Icons/e7bb" style-name="friendly" _id="uploadFoto"></vaadin-upload>
+    <vaadin-grid-layout width-full _id="imageGird">
+     <row>
+      <column></column>
+      <column></column>
+     </row>
+     <row>
+      <column></column>
+      <column></column>
+     </row>
+     <row>
+      <column></column>
+      <column></column>
+     </row>
+     <row>
+      <column></column>
+      <column></column>
+     </row>
+     <row>
+      <column></column>
+      <column></column>
+     </row>
+     <row>
+      <column></column>
+      <column></column>
+     </row>
+     <row>
+      <column></column>
+      <column></column>
+     </row>
+     <row>
+      <column></column>
+      <column></column>
+     </row>
+     <row>
+      <column></column>
+      <column></column>
+     </row>
+     <row>
+      <column></column>
+      <column></column>
+     </row>
+    </vaadin-grid-layout>
    </vaadin-vertical-layout>
   </vaadin-vertical-layout>
  </body>

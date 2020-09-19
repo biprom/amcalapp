@@ -1,45 +1,58 @@
 package com.biprom.bram.ui.views.checkList;
 
 
+import com.biprom.bram.app.security.SecurityUtils;
+import com.biprom.bram.backend.Upload.LineBreakCounter;
 import com.biprom.bram.backend.data.entity.mongodbEntities.CheckListBestek;
 import com.biprom.bram.backend.data.entity.mongodbEntities.DetailTicket;
 import com.biprom.bram.backend.data.entity.mongodbEntities.MainTicket;
 import com.biprom.bram.backend.data.entity.mongodbEntities.Product;
 import com.biprom.bram.backend.mongoRepositories.MainTicketRepository;
 import com.biprom.bram.backend.mongoRepositories.PersoneelRepository;
+import com.biprom.bram.backend.service.GridFS.GridFSService;
 import com.biprom.bram.ui.views.CheckListDesign;
 import com.vaadin.data.Binder;
+import com.vaadin.data.HasValue;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.FileResource;
 import com.vaadin.shared.ui.ValueChangeMode;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.*;
+import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @SpringView(name = "checkList")
 public class CheckListView extends CheckListDesign implements View {
 
+    @Value("${root}")
+    String root;
+
+    @Value("${inter}")
+    String inter;
+
     MainTicketRepository mainTicketRepository;
     PersoneelRepository personeelRepository;
+    GridFSService gridFSService;
+
+    File fileToDelete;
+
+    LineBreakCounter lineBreakCounter = new LineBreakCounter();
 
     MainTicket geselecteerdMainTicket;
-    DetailTicket geslecteerdDetailTicket;
+    DetailTicket geselecteerdDetail;
 
     Binder<CheckListBestek>checkListBestekBinder = new Binder<>(  );
     Binder<DetailTicket>detailTicketBinder = new Binder<>(  );
     
     List<Product>productList = new ArrayList<>();
 
-    Iterator<String>stringIterator;
-
-    Boolean bNoDoubleEvents = false;
-
-    List<Integer> amNummerList = new ArrayList<>(  );
     File noImageFile = new File("/data/kabba/amcalPics/5.jpeg");
     File file1Aansluiting = new File("/data/kabba/amcalPics/1.jpeg");
     File file2Aansluiting = new File("/data/kabba/amcalPics/2.jpeg");
@@ -78,10 +91,12 @@ public class CheckListView extends CheckListDesign implements View {
 
     @Autowired
     public CheckListView(MainTicketRepository mainTicketRepository,
-                         PersoneelRepository personeelRepository) {
+                         PersoneelRepository personeelRepository,
+                         GridFSService gridFSService) {
 
         this.mainTicketRepository = mainTicketRepository;
         this.personeelRepository = personeelRepository;
+        this.gridFSService = gridFSService;
 
         setUpCheckBoxGroupTechniekers();
         setUpCBPositieMagazijn();
@@ -90,8 +105,140 @@ public class CheckListView extends CheckListDesign implements View {
         setUpBinder();
         setUpCBAansluitingen();
         setUpCheckBoxGroupValueChangeListeners();
-        setUpbChangeCheckList();
         setUpGrid();
+        setUpUplFoto();
+        setUpAutoMateriaalButton();
+    }
+
+    private void setUpAutoMateriaalButton() {
+        bGenereerMateriaalLijst.addClickListener(x -> {
+            if(cbgWikkelingswaardes.getValue().toString().contains("NL_Wikkelingswaardes NOK")){
+                productList.add(new Product("Herwikkelen"));
+            }
+            if(cbgMotorVerbrand.getValue().toString().contains("NL_Motor verbrand")){
+                productList.add(new Product("Herwikkelen"));
+            }
+            if(cbgControlBox.getValue().toString().contains("NL_Controlbox Defect")){
+                productList.add(new Product("Controlbox"));
+            }
+            if(cbgWaterInMotor.getValue().toString().contains("NL_water in motor_NL")){
+                productList.add(new Product("Uitdrogen/Nieuwe motor"));
+            }
+            if(cbgControlBox.getValue().toString().contains("NL_Water in Controlbox_NL")){
+                productList.add(new Product("Uitdrogen/Nieuwe Controlbox"));
+            }
+            if(cbgWaterInMotor.getValue().toString().contains("NL_Water in motorkabel_NL")){
+                productList.add(new Product("Uitdrogen/Nieuwe motorkabel"));
+            }
+            if(cbgWaterInMotor.getValue().toString().contains("NL_Water in krimpmof_NL")){
+                productList.add(new Product("Uitdrogen/Nieuwe krimpmof"));
+            }
+            if(cbgWaterInMotor.getValue().toString().contains("NL_Water in onderwaterkabel_NL")){
+                productList.add(new Product("Uitdrogen/Nieuwe onderwaterkabel"));
+            }
+            if((cbgMotorLagers.getValue().toString().contains("NL_Lagers lawaai_NL"))||(cbgMotorLagers.getValue().toString().contains("NL_Lagers defect_NL"))){
+                productList.add(new Product("Motorlagers " + tfLagerAsMotorCommentaar.getValue() + " " + tfLagerVentMotorCommentaar1.getValue()));
+            }
+            if(cbgBeschadingMotor.getValue().toString().contains("NL_Stator defect_NL")){
+                productList.add(new Product("Stator"));
+            }
+            if(cbgBeschadingMotor.getValue().toString().contains("NL_Rotor beschadigd_NL")){
+                productList.add(new Product("Rotor"));
+            }
+            if(cbgBeschadingMotor.getValue().toString().contains("NL_Flens NDE defect_NL")){
+                productList.add(new Product("Motorflens NDE"));
+            }
+            if(cbgBeschadingMotor.getValue().toString().contains("NL_Flens DE defect_NL")){
+                productList.add(new Product("Motorflens DE"));
+            }
+            if((cbgMotorDichtingen.getValue().toString().contains("NL_Motordichtingen uitgezet_NL"))
+                    ||(cbgMotorDichtingen.getValue().toString().contains("NL_Motordichtingen beschadigd_NL"))
+                    ||(cbgMotorDichtingen.getValue().toString().contains("NL_Motordichtingen gesmolten_NL"))
+                    ||(cbgMotorDichtingen.getValue().toString().contains("NL_Motordichtingen gescheurd_NL"))){
+                productList.add(new Product("Motordichtingen "));
+            }
+            if(cbgVentilator.getValue().toString().contains("NL_Ventilatorkap defect_NL")){
+                productList.add(new Product("Ventilatorkap"));
+            }
+            if(cbgVentilator.getValue().toString().contains("NL_Ventilator defect_NL")){
+                productList.add(new Product("Ventilator"));
+            }
+            if(cbgVentilator.getValue().toString().contains("NL_Klemmenblok defect_NL")){
+                productList.add(new Product("Klemmenblok"));
+            }
+            if(cbgVentilator.getValue().toString().contains("NL_Klemmendeksel defect_NL")){
+                productList.add(new Product("Klemmendeksel"));
+            }
+            if(cbgMotorkabel.getValue().toString().contains("NL_Motorkabel beschadigd_NL")){
+                productList.add(new Product("Motorkabel"));
+            }
+            if((cbgPrimaireAsafdichtingen.getValue().toString().contains("NL_Asafdichting ingelopen_NL"))
+                    ||(cbgPrimaireAsafdichtingen.getValue().toString().contains("NL_Asafdichting beschadigd_NL"))
+                    ||(cbgPrimaireAsafdichtingen.getValue().toString().contains("NL_Asafdichting versleten_NL"))
+                    ||(cbgPrimaireAsafdichtingen.getValue().toString().contains("NL_Asafdichting uitgezet_NL"))
+                    ||(cbgPrimaireAsafdichtingen.getValue().toString().contains("NL_Asafdichting gebarsten_NL"))){
+                productList.add(new Product("Asafdichting "));
+            }
+            if((cbgSecundaireAsafdichtingen.getValue().toString().contains("NL_Secundaire asafdichting ingelopen_NL"))
+                    ||(cbgSecundaireAsafdichtingen.getValue().toString().contains("NL_Secundaire asafdichting beschadigd_NL"))
+                    ||(cbgSecundaireAsafdichtingen.getValue().toString().contains("NL_Secundaire asafdichting versleten_NL"))
+                    ||(cbgSecundaireAsafdichtingen.getValue().toString().contains("NL_Secundaire asafdichting uitgezet_NL"))
+                    ||(cbgSecundaireAsafdichtingen.getValue().toString().contains("NL_Secundaire asafdichting gebarsten_NL"))){
+                productList.add(new Product("Secundaire asafdichting "));
+            }
+            if((cbgPompas.getValue().toString().contains("NL_Pompas ingelopen_NL"))
+                    ||(cbgPompas.getValue().toString().contains("NL_Pompas Putcorrosie_NL"))
+                    ||(cbgPompas.getValue().toString().contains("NL_Pompas Beschadigd_NL"))
+                    ||(cbgPompas.getValue().toString().contains("NL_Pompas Versleten_NL"))
+                    ||(cbgPompas.getValue().toString().contains("NL_Pompas Gebroken_NL"))){
+                productList.add(new Product("Secundaire asafdichting "));
+            }
+            if((cbgWaaiers.getValue().toString().contains("NL_Waaiers Ingelopen_NL"))
+                    ||(cbgWaaiers.getValue().toString().contains("NL_Waaiers Beschadigd_NL"))
+                    ||(cbgWaaiers.getValue().toString().contains("NL_Waaiers Versleten_NL"))
+                    ||(cbgWaaiers.getValue().toString().contains("NL_Waaiers Gebroken_NL"))){
+                productList.add(new Product("Waaiers "));
+            }
+            if((cbgKamers.getValue().toString().contains("NL_Kamers beschadigd_NL"))
+                    ||(cbgKamers.getValue().toString().contains("NL_Kamers Gebroken_NL"))
+                    ||(cbgKamers.getValue().toString().contains("NL_Kamers Versleten_NL"))){
+                productList.add(new Product("Kamer "));
+            }
+            if((cbgDichtingen.getValue().toString().contains("NL_Dichtingen Uitgezet_NL"))
+                    ||(cbgDichtingen.getValue().toString().contains("NL_Dichtingen Beschadigd_NL"))
+                    ||(cbgDichtingen.getValue().toString().contains("NL_Dichtingen Gesmolten_NL"))
+                    ||(cbgDichtingen.getValue().toString().contains("NL_Dichtingen Gescheurd_NL"))){
+                productList.add(new Product("Dichtingen "));
+            }
+            if(cbgAantasting.getValue().toString().contains("NL_Aantasting Kopstuk_NL")){
+                productList.add(new Product("Kopstuk"));
+            }
+            if(cbgAantasting.getValue().toString().contains("NL_Aantasting Voetstuk_NL")){
+                productList.add(new Product("Voetstuk"));
+            }
+            if(cbgAantasting.getValue().toString().contains("NL_Aantasting mantel_NL")){
+                productList.add(new Product("mantel"));
+            }
+            if(cbgAantasting.getValue().toString().contains("NL_Aantasting kamers_NL")){
+                productList.add(new Product("kamer"));
+            }
+            if((cbgLagers.getValue().toString().contains("NL_Lagers ingelopen_NL"))
+                    ||(cbgLagers.getValue().toString().contains("NL_Lagers beschadigd_NL"))
+                    ||(cbgLagers.getValue().toString().contains("NL_Lagers gebarsten_NL"))){
+                productList.add(new Product("Lagers "));
+            }
+            if((cbgSpaltringen.getValue().toString().contains("NL_Spaltringen ingelopen_NL"))
+                    ||(cbgSpaltringen.getValue().toString().contains("NL_Spaltringen beschadigd_NL"))
+                    ||(cbgSpaltringen.getValue().toString().contains("NL_Spaltringen gebarsten_NL"))){
+                productList.add(new Product("Spaltringen "));
+            }
+            if(cbgBinnenwerk.getValue().toString().contains("NL_Binnenwerk volledig stukgedraaid_NL")){
+                productList.add(new Product("Volledig binnenwerk"));
+            }
+
+
+
+        });
     }
 
     private void setUpGrid() {
@@ -134,7 +281,7 @@ public class CheckListView extends CheckListDesign implements View {
             tfEigenOmschrijving.setValueChangeMode(ValueChangeMode.BLUR);
             tfEigenOmschrijving.addValueChangeListener(f -> e.setEigenOmschrijving(f.getValue()));
             productGrid.getDataProvider().refreshAll();
-            geslecteerdDetailTicket.setBenodigdheden((ArrayList<Product>) productList);
+            geselecteerdDetail.setBenodigdheden((ArrayList<Product>) productList);
             mainTicketRepository.save( geselecteerdMainTicket );
             return tfEigenOmschrijving;
         }).setSortable( false ).setCaption("Eigen omschrijving").setId( "eigen omschrijving" );
@@ -189,7 +336,7 @@ public class CheckListView extends CheckListDesign implements View {
             button.addClickListener(x -> {
                 productList.remove(item);
                 productGrid.getDataProvider().refreshAll();
-                geslecteerdDetailTicket.setBenodigdheden((ArrayList<Product>) productList);
+                geselecteerdDetail.setBenodigdheden((ArrayList<Product>) productList);
                 mainTicketRepository.save( geselecteerdMainTicket );
             });
             button.setStyleName("danger");
@@ -221,65 +368,40 @@ public class CheckListView extends CheckListDesign implements View {
         });
     }
 
-    private void setUpbChangeCheckList() {
-        bChangeCheckList.addClickListener(x -> {
-            geslecteerdDetailTicket.getCheckListBestek().setAantastingen(formatString(geslecteerdDetailTicket.getCheckListBestek().getAantastingen()));
-            geslecteerdDetailTicket.getCheckListBestek().setAsafdichting(formatString(geslecteerdDetailTicket.getCheckListBestek().getAsafdichting()));
-            geslecteerdDetailTicket.getCheckListBestek().setBinnenwerk(formatString(geslecteerdDetailTicket.getCheckListBestek().getBinnenwerk()));
-            geslecteerdDetailTicket.getCheckListBestek().setContaminatie(formatString(geslecteerdDetailTicket.getCheckListBestek().getContaminatie()));
-            geslecteerdDetailTicket.getCheckListBestek().setControlBox(formatString(geslecteerdDetailTicket.getCheckListBestek().getControlBox()));
-            geslecteerdDetailTicket.getCheckListBestek().setDichtingen(formatString(geslecteerdDetailTicket.getCheckListBestek().getDichtingen()));
-            geslecteerdDetailTicket.getCheckListBestek().setGarantie(formatString(geslecteerdDetailTicket.getCheckListBestek().getGarantie()));
-            geslecteerdDetailTicket.getCheckListBestek().setIsolatieWeerstand(formatString(geslecteerdDetailTicket.getCheckListBestek().getIsolatieWeerstand()));
-            geslecteerdDetailTicket.getCheckListBestek().setKamers(formatString(geslecteerdDetailTicket.getCheckListBestek().getKamers()));
-            geslecteerdDetailTicket.getCheckListBestek().setLagers(formatString(geslecteerdDetailTicket.getCheckListBestek().getLagers()));
-            geslecteerdDetailTicket.getCheckListBestek().setMotorDichtingen(formatString(geslecteerdDetailTicket.getCheckListBestek().getMotorDichtingen()));
-            geslecteerdDetailTicket.getCheckListBestek().setMotorKabel(formatString(geslecteerdDetailTicket.getCheckListBestek().getMotorKabel()));
-            geslecteerdDetailTicket.getCheckListBestek().setMotorLagers(formatString(geslecteerdDetailTicket.getCheckListBestek().getMotorLagers()));
-            geslecteerdDetailTicket.getCheckListBestek().setMotorVerbrand(formatString(geslecteerdDetailTicket.getCheckListBestek().getMotorVerbrand()));
-            geslecteerdDetailTicket.getCheckListBestek().setPompas(formatString(geslecteerdDetailTicket.getCheckListBestek().getPompas()));
-            geslecteerdDetailTicket.getCheckListBestek().setPompBinnengebracht(formatString(geslecteerdDetailTicket.getCheckListBestek().getPompBinnengebracht()));
-            geslecteerdDetailTicket.getCheckListBestek().setPompstaat(formatString(geslecteerdDetailTicket.getCheckListBestek().getPompstaat()));
-            geslecteerdDetailTicket.getCheckListBestek().setPompStatus(formatString(geslecteerdDetailTicket.getCheckListBestek().getPompStatus()));
-            geslecteerdDetailTicket.getCheckListBestek().setRotorStatorFlens(formatString(geslecteerdDetailTicket.getCheckListBestek().getRotorStatorFlens()));
-
-            geslecteerdDetailTicket.getCheckListBestek().setSecundaireAsafdichting(formatString(geslecteerdDetailTicket.getCheckListBestek().getSecundaireAsafdichting()));
-            geslecteerdDetailTicket.getCheckListBestek().setSpaltringen(formatString(geslecteerdDetailTicket.getCheckListBestek().getSpaltringen()));
-            geslecteerdDetailTicket.getCheckListBestek().setVentilator(formatString(geslecteerdDetailTicket.getCheckListBestek().getVentilator()));
-            geslecteerdDetailTicket.getCheckListBestek().setVochtInMotor(formatString(geslecteerdDetailTicket.getCheckListBestek().getVochtInMotor()));
-            geslecteerdDetailTicket.getCheckListBestek().setWaaiers(formatString(geslecteerdDetailTicket.getCheckListBestek().getWaaiers()));
-            geslecteerdDetailTicket.getCheckListBestek().setWaterInMotor(formatString(geslecteerdDetailTicket.getCheckListBestek().getWaterInMotor()));
-            geslecteerdDetailTicket.getCheckListBestek().setWikkelingsWaardes(formatString(geslecteerdDetailTicket.getCheckListBestek().getWikkelingsWaardes()));
-
-            mainTicketRepository.save(geselecteerdMainTicket);
-
-        });
-    }
-
     private Set<String> formatString(Set<String> collect) {
 
-            System.out.println("functie aangesproken");
             Set<String> set = new HashSet();
 
-           List<String> newList = new ArrayList(collect);
+        try {
 
-           if((newList.size()>1)&&(newList.get(0).toString().contains("FR"))){
-               Collections.swap(newList,0,1);
-               set.add(newList.subList(0,2).stream().collect(Collectors.joining()));
-           }
-           if((newList.size()>1)&&(newList.get(0).toString().contains("NL"))){
-               set.add(newList.subList(0,2).stream().collect(Collectors.joining()));
-           }
+           List<String> receivedList = new ArrayList(collect);
 
-            if((newList.size()>2)&&(newList.get(2).toString().contains("FR"))){
-                Collections.swap(newList,2,3);
-            }
-            if(newList.size()>2){
-                set.add(newList.subList(2,4).stream().collect(Collectors.joining()));
-            }
+           if(receivedList.size() > 1) {
+               while (receivedList.size() > 0) {
+
+                       String string1 = receivedList.stream().filter(x -> x.contains("NL")).findFirst().get();
+                       String string2 = receivedList.stream().filter(x -> x.contains("FR")).reduce((first, second) -> second).get();
+                       set.add(string1 + string2);
+                       receivedList.remove(string1);
+                       receivedList.remove(string2);
+
+               }
+           }
+           else{
+               try {
+                   String string1 = "NL_" + receivedList.get(0) + "_NL";
+                   set.add(string1);
+               }
+               catch (Exception e){
+
+               }
+           }
+        }
+        catch (Exception e){
+
+        }
+
             return set;
-
-
     }
 
 
@@ -323,6 +445,91 @@ public class CheckListView extends CheckListDesign implements View {
         checkbGroupTechniekersHersteld.setItemCaptionGenerator( x -> x.getInlogNaam() );
     }
 
+    private void setUpBHaalFotosOp() {
+
+        imageGird.removeAllComponents();
+        if(geselecteerdDetail.getPictureList() != null){
+            gridFSService.findFilesForDetailTicket(geselecteerdDetail, null );
+
+
+            List<FileResource>resourceList = gridFSService.getResourcesPics();
+            List<String>metaList = gridFSService.getMetaList();
+            int i = 0;
+            for (FileResource resource : resourceList){
+
+                Image image = new Image(  );
+                image.setSource( resource );
+                image.addContextClickListener( f -> {
+                    resourceList.remove( f.getComponent() );
+                    imageGird.removeComponent( f.getComponent() );
+                    gridFSService.deleteImage( resource.getFilename() );
+
+                } );
+
+                imageGird.addComponent( image );
+
+                TextArea textArea = new TextArea( "Toegevoegde Metadata" );
+                textArea.setStyleName( ""+ i );
+                textArea.setWidth( "400px" );
+                textArea.setValue( metaList.get( i ) );
+                textArea.addBlurListener( f -> {
+                    gridFSService.getImageEntityList().stream().filter(x -> x.getName().matches(resource.getFilename())).findFirst().get().setComment(textArea.getValue());
+                    gridFSService.changeMetaData( gridFSService.getImageEntityList().stream().filter(x -> x.getName().matches(resource.getFilename())).findFirst().get()) ;
+
+                } );
+                imageGird.addComponent( textArea );
+
+                i++;
+            }
+        }
+
+    }
+
+    private void setUpUplFoto() {
+        uploadFoto.setReceiver( lineBreakCounter );
+
+        uploadFoto.setImmediateMode( true );
+        uploadFoto.setButtonCaption( "Koppel foto in dit datail" );
+
+        uploadFoto.addStartedListener( event -> {
+            Notification.show( "Upload foto gestart" );
+        });
+
+        uploadFoto.addFinishedListener( event -> {
+
+            try {
+                Thumbnails.of( new File( root + inter +"uplPicToDB"+ SecurityUtils.getUsername()+inter +event.getFilename() ) )
+                        .size( 700,700 )
+                        .toFile( root + inter + "uploadThumbnail"+SecurityUtils.getUsername()+inter +event.getFilename() );
+                Thumbnails.of( new File( root + inter + "uplPicToDB"+SecurityUtils.getUsername()+inter +event.getFilename() ) )
+                        .size( 700,700 )
+                        .toFile( root + inter + "recPicFromDB"+SecurityUtils.getUsername()+inter +event.getFilename() );
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            gridFSService.storeFileToMongoDB( root + inter +"uploadThumbnail"+SecurityUtils.getUsername()+inter +event.getFilename(),"meta1", " ", event.getFilename(), geselecteerdDetail, true );
+            Notification.show( "Upload foto voltooid" );
+            try{
+
+
+                fileToDelete = new File(root + inter + "uplPicToDB"+SecurityUtils.getUsername()+ inter + event.getFilename());
+                fileToDelete.delete();
+                fileToDelete = new File(root + inter +"amcal/uploadThumbnail"+SecurityUtils.getUsername()+ inter + event.getFilename());
+                fileToDelete.delete();
+
+                imageGird.addComponent(new Image("foto geuploaded", new FileResource( new File( root + inter + "recPicFromDB"+SecurityUtils.getUsername()+ inter + event.getFilename() ) )));
+
+
+            }catch(Exception e){
+
+                e.printStackTrace();
+                Notification.show( "Upload foto mislukt : " + e.getMessage() );
+            }
+
+        });
+    }
+
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
         String[] parameters = event.getParameters().split( "/" );
@@ -340,13 +547,19 @@ public class CheckListView extends CheckListDesign implements View {
             vraagKlantLabel.setValue( "Opdracht van klant : " +geselecteerdMainTicket.getVraagKlant() );
             hideCertainFields(parameters[2]);
         }
-        geslecteerdDetailTicket = geselecteerdMainTicket.getDetails().stream().filter( x -> x.getamNummer().matches( parameters[0] ) ).findFirst().get();
-        checkListBestekBinder.setBean( geslecteerdDetailTicket.getCheckListBestek() );
-        detailTicketBinder.setBean( geslecteerdDetailTicket );
-        if(geslecteerdDetailTicket.getBenodigdheden() != null){
-            productList = geslecteerdDetailTicket.getBenodigdheden();
+        geselecteerdDetail = geselecteerdMainTicket.getDetails().stream().filter(x -> x.getamNummer().matches( parameters[0] ) ).findFirst().get();
+        checkListBestekBinder.setBean( geselecteerdDetail.getCheckListBestek() );
+        detailTicketBinder.setBean(geselecteerdDetail);
+        if(geselecteerdDetail.getBenodigdheden() != null){
+            productList = geselecteerdDetail.getBenodigdheden();
+        }
+        else{
+            productList = new ArrayList<>();
+            productList.add(new Product());
         }
         productGrid.setItems(productList);
+
+        setUpBHaalFotosOp();
 
     }
 
@@ -390,169 +603,242 @@ public class CheckListView extends CheckListDesign implements View {
     private void setUpBinder() {
 
         checkListBestekBinder.forField( checkbGroupTechniekers )
+                .withNullRepresentation(new HashSet<>())
                 .bind( x -> x.getGedemonteerdDoorList().stream().collect( Collectors.toSet()),(x, y)-> x.setGedemonteerdDoorList( y.stream().collect( Collectors.toList()) )  );
         checkListBestekBinder.forField( checkbGroupTechniekersHersteld )
+                .withNullRepresentation(new HashSet<>())
                 .bind( x -> x.getHersteldDoorList().stream().collect( Collectors.toSet()),(x, y)-> x.setHersteldDoorList( y.stream().collect( Collectors.toList()) )  );
         checkListBestekBinder.forField( cbgEUPallet )
+                .withNullRepresentation(new HashSet<>())
                 .bind(x -> x.getBinnengebrachtOp(),(x,y) -> x.setBinnengebrachtOp( y ) );
         checkListBestekBinder.forField( tfBinnengebrachtAndereManier )
+                .withNullRepresentation("")
                 .bind( CheckListBestek::getBinnengebrachtOpAndere, CheckListBestek::setBinnengebrachtOpAndere  );
         checkListBestekBinder.forField( cbPositieMagazijn )
+                .withNullRepresentation("")
                 .bind( CheckListBestek::getPositieMagazijn, CheckListBestek::setPositieMagazijn );
         checkListBestekBinder.forField( tfAnderePositie )
+                .withNullRepresentation("")
                 .bind( CheckListBestek::getAnderPositie, CheckListBestek::setAnderPositie );
         checkListBestekBinder.forField( cbElektrischeAansluiting )
+                .withNullRepresentation("")
                 .bind( x -> String.valueOf(x.getZijdeElektrischeAansluiting()), (x,y) -> x.setZijdeElektrischeAansluiting(getImageNumber(y)) );
         checkListBestekBinder.forField( cbZijdeOntluchting )
+                .withNullRepresentation("")
                 .bind( x -> String.valueOf(x.getZijdeOntluchting()), (x,y) -> x.setZijdeOntluchting(getImageNumber(y)) );
         checkListBestekBinder.forField( cbMontagePlaten )
+                .withNullRepresentation("")
                 .bind( x -> String.valueOf(x.getZijdeMontagePlaten()), (x,y) -> x.setZijdeMontagePlaten(getImageNumber(y)) );
         checkListBestekBinder.forField( taBijkomendCommentaarPomp )
+                .withNullRepresentation("")
                 .bind( CheckListBestek::getCommentaarPomp, CheckListBestek::setCommentaarPomp );
         checkListBestekBinder.forField( tfUitGebreidPompType )
+                .withNullRepresentation("")
                 .bind( CheckListBestek::getUitgebreidPompType, CheckListBestek::setUitgebreidPompType );
         checkListBestekBinder.forField( tfArtikelNummerPomp )
+                .withNullRepresentation("")
                 .bind( CheckListBestek::getArtikelNummerPomp, CheckListBestek::setArtikelNummerPomp );
         checkListBestekBinder.forField(tfPompVermogen)
+                .withNullRepresentation("")
                 .bind(CheckListBestek::getVermogenPomp, CheckListBestek::setVermogenPomp );
         checkListBestekBinder.forField( tfProductDatumPomp )
+                .withNullRepresentation("")
                 .bind( CheckListBestek::getProductieDatumPomp, CheckListBestek::setProductieDatumPomp );
         checkListBestekBinder.forField( tfSerieNummerPomp )
+                .withNullRepresentation("")
                 .bind( CheckListBestek::getSerieNummerPomp, CheckListBestek::setSerieNummerPomp );
         checkListBestekBinder.forField( tfQnom )
+                .withNullRepresentation("")
                 .bind( CheckListBestek::getqNomPomp, CheckListBestek::setqNomPomp );
         checkListBestekBinder.forField( tfHnom )
+                .withNullRepresentation("")
                 .bind( CheckListBestek::gethNomPomp, CheckListBestek::sethNomPomp );
         checkListBestekBinder.forField( tfLandPomp )
+                .withNullRepresentation("")
                 .bind( CheckListBestek::getPompLand, CheckListBestek::setPompLand );
         checkListBestekBinder.forField( tfMotorType )
+                .withNullRepresentation("")
                 .bind( CheckListBestek::getMotorType, CheckListBestek::setMotorType );
         checkListBestekBinder.forField( tfNominaalVermogen )
+                .withNullRepresentation("")
                 .bind( CheckListBestek::getNominaalVermogen, CheckListBestek::setNominaalVermogen );
         checkListBestekBinder.forField( tfToerental )
+                .withNullRepresentation("")
                 .bind( CheckListBestek::getToerental, CheckListBestek::setToerental );
         checkListBestekBinder.forField( tfArtikelNummerMotor )
+                .withNullRepresentation("")
                 .bind( CheckListBestek::getArtikelNummerMotor, CheckListBestek::setArtikelNummerMotor );
         checkListBestekBinder.forField( tfUDriehoek )
+                .withNullRepresentation("")
                 .bind( CheckListBestek::getUdriehoek, CheckListBestek::setUdriehoek );
         checkListBestekBinder.forField( tfUSter )
+                .withNullRepresentation("")
                 .bind( CheckListBestek::getUster, CheckListBestek::setUster );
         checkListBestekBinder.forField( cbFreqController )
+                .withNullRepresentation(false)
                 .bind( CheckListBestek::isFreqRegelaar, CheckListBestek::setFreqRegelaar );
         checkListBestekBinder.forField( cbNietStandardPomp )
+                .withNullRepresentation(false)
                 .bind( CheckListBestek::isNietStandaardPomp, CheckListBestek::setNietStandaardPomp );
         checkListBestekBinder.forField( tfProductieDatumMotor )
+                .withNullRepresentation("")
                 .bind( CheckListBestek::getProductieDatumMotor, CheckListBestek::setProductieDatumMotor );
         checkListBestekBinder.forField( tfIsolatieWeerstand )
+                .withNullRepresentation("")
                 .bind( x -> x.getRisolatie(), (x,y)-> x.setRisolatie( y ) );
         checkListBestekBinder.forField( tfRfase1 )
+                .withNullRepresentation("")
                 .bind( CheckListBestek::getRfase1, CheckListBestek::setRfase1 );
         checkListBestekBinder.forField( tfRfase2 )
+                .withNullRepresentation("")
                 .bind( CheckListBestek::getRfase2, CheckListBestek::setRfase2 );
         checkListBestekBinder.forField( tfRfase3 )
+                .withNullRepresentation("")
                 .bind( CheckListBestek::getRfase3, CheckListBestek::setRfase3 );
         checkListBestekBinder.forField( rbgMotorElektrisch )
+                .withNullRepresentation("")
                 .bind(( x -> x.getMotorElekrischInOrde()),(x, y)-> x.setMotorElekrischInOrde( y ) );
         checkListBestekBinder.forField( rbgMotorMechanisch )
+                .withNullRepresentation("")
                 .bind( x -> x.getMotorMechanischInOrde(),(x, y)-> x.setMotorMechanischInOrde( y ) );
         checkListBestekBinder.forField( cbgIsolatieweerstand )
-                .bind( x -> x.getIsolatieWeerstand().stream().collect( Collectors.toSet()),(x, y)-> x.setIsolatieWeerstand( y )  );
+                .withNullRepresentation(new HashSet<>())
+                .bind( x -> x.getIsolatieWeerstand(),(x, y)-> x.setIsolatieWeerstand( y )  );
         checkListBestekBinder.forField( cbgWikkelingswaardes )
-                .bind( x -> x.getWikkelingsWaardes().stream().collect( Collectors.toSet()),(x, y)-> x.setWikkelingsWaardes( y )  );
-        checkListBestekBinder.forField( cbgWikkelingswaardes )
-                .bind( x -> x.getWikkelingsWaardes().stream().collect( Collectors.toSet()),(x, y)-> x.setWikkelingsWaardes( y )  );
-        checkListBestekBinder.forField( cbgWikkelingswaardes )
-                .bind( x -> x.getWikkelingsWaardes().stream().collect( Collectors.toSet()),(x, y)-> x.setWikkelingsWaardes( y )  );
+                .withNullRepresentation(new HashSet<>())
+                .bind( x -> x.getWikkelingsWaardes(),(x, y)-> x.setWikkelingsWaardes( y )  );
 
         checkListBestekBinder.forField( cbgMotorVerbrand )
-                .bind( x -> x.getMotorVerbrand().stream().collect( Collectors.toSet()),(x, y)-> x.setMotorVerbrand( y )  );
+                .withNullRepresentation(new HashSet<>())
+                .bind( x -> x.getMotorVerbrand(),(x, y)-> x.setMotorVerbrand( y )  );
         checkListBestekBinder.forField( cbgControlBox )
-                .bind( x -> x.getControlBox().stream().collect( Collectors.toSet()),(x, y)-> x.setControlBox( y)  );
+                .withNullRepresentation(new HashSet<>())
+                .bind( x -> x.getControlBox(),(x, y)-> x.setControlBox( y)  );
         checkListBestekBinder.forField( cbgWaterInMotor )
-                .bind( x -> x.getWaterInMotor().stream().collect( Collectors.toSet()),(x, y)-> x.setWaterInMotor( y )  );
+                .withNullRepresentation(new HashSet<>())
+                .bind( x -> x.getWaterInMotor(),(x, y)-> x.setWaterInMotor( y )  );
         checkListBestekBinder.forField( cbgMotorkabel )
-                .bind( x -> x.getMotorKabel().stream().collect( Collectors.toSet()),(x, y)-> x.setMotorKabel( y )  );
+                .withNullRepresentation(new HashSet<>())
+                .bind( x -> x.getMotorKabel(),(x, y)-> x.setMotorKabel( y )  );
         checkListBestekBinder.forField( cbgVochtInMotor )
-                .bind( x -> x.getVochtInMotor().stream().collect( Collectors.toSet()),(x, y)-> x.setVochtInMotor( y )  );
+                .withNullRepresentation(new HashSet<>())
+                .bind( x -> x.getVochtInMotor(),(x, y)-> x.setVochtInMotor( y )  );
         checkListBestekBinder.forField( cbgMotorLagers )
-                .bind( x -> x.getMotorLagers().stream().collect( Collectors.toSet()),(x, y)-> x.setMotorLagers( y )  );
+                .withNullRepresentation(new HashSet<>())
+                .bind( x -> x.getMotorLagers(),(x, y)-> x.setMotorLagers( y )  );
         checkListBestekBinder.forField( cbgMotorDichtingen )
-                .bind( x -> x.getMotorDichtingen().stream().collect( Collectors.toSet()),(x, y)-> x.setMotorDichtingen( y )  );
+                .withNullRepresentation(new HashSet<>())
+                .bind( x -> x.getMotorDichtingen(),(x, y)-> x.setMotorDichtingen( y )  );
         checkListBestekBinder.forField( cbgVentilator )
-                .bind( x -> x.getVentilator().stream().collect( Collectors.toSet()),(x, y)-> x.setVentilator( y )  );
+                .withNullRepresentation(new HashSet<>())
+                .bind( x -> x.getVentilator(),(x, y)-> x.setVentilator( y )  );
         checkListBestekBinder.forField( cbgBeschadingMotor )
-                .bind( x -> x.getRotorStatorFlens().stream().collect( Collectors.toSet()),(x, y)-> x.setRotorStatorFlens( y )  );
+                .withNullRepresentation(new HashSet<>())
+                .bind( x -> x.getRotorStatorFlens(),(x, y)-> x.setRotorStatorFlens( y )  );
 
         checkListBestekBinder.forField( cbgGarantie )
-                .bind( x -> x.getGarantie().stream().collect( Collectors.toSet()),(x, y)-> x.setGarantie( y )  );
+                .withNullRepresentation(new HashSet<>())
+                .bind( x -> x.getGarantie(),(x, y)-> x.setGarantie( y )  );
         checkListBestekBinder.forField( cbgBinnengebrachtPomp )
-                .bind( x -> x.getPompBinnengebracht().stream().collect( Collectors.toSet()),(x, y)-> x.setPompBinnengebracht( y )  );
+                .withNullRepresentation(new HashSet<>())
+                .bind( x -> x.getPompBinnengebracht(),(x, y)-> x.setPompBinnengebracht( y )  );
         checkListBestekBinder.forField( cbgStaatPomp )
-                .bind( x -> x.getPompstaat().stream().collect( Collectors.toSet()),(x, y)-> x.setPompstaat( y )  );
+                .withNullRepresentation(new HashSet<>())
+                .bind( x -> x.getPompstaat(),(x, y)-> x.setPompstaat( y )  );
         checkListBestekBinder.forField( cbgPrimaireAsafdichtingen )
-                .bind( x -> x.getAsafdichting().stream().collect( Collectors.toSet()),(x, y)-> x.setAsafdichting( y )  );
+                .withNullRepresentation(new HashSet<>())
+                .bind( x -> x.getAsafdichting(),(x, y)-> x.setAsafdichting( y )  );
         checkListBestekBinder.forField( cbgSecundaireAsafdichtingen )
-                .bind( x -> x.getSecundaireAsafdichting().stream().collect( Collectors.toSet()),(x, y)-> x.setSecundaireAsafdichting( y )  );
+                .withNullRepresentation(new HashSet<>())
+                .bind( x -> x.getSecundaireAsafdichting(),(x, y)-> x.setSecundaireAsafdichting( y )  );
 
         checkListBestekBinder.forField( cbgPompas )
-                .bind( x -> x.getPompas().stream().collect( Collectors.toSet()),(x, y)-> x.setPompas( y )  );
+                .withNullRepresentation(new HashSet<>())
+                .bind( x -> x.getPompas(),(x, y)-> x.setPompas( y )  );
         checkListBestekBinder.forField( cbgWaaiers )
-                .bind( x -> x.getWaaiers().stream().collect( Collectors.toSet()),(x, y)-> x.setWaaiers( y )  );
+                .withNullRepresentation(new HashSet<>())
+                .bind( x -> x.getWaaiers(),(x, y)-> x.setWaaiers( y )  );
         checkListBestekBinder.forField( cbgKamers )
-                .bind( x -> x.getKamers().stream().collect( Collectors.toSet()),(x, y)-> x.setKamers( y )  );
+                .withNullRepresentation(new HashSet<>())
+                .bind( x -> x.getKamers(),(x, y)-> x.setKamers( y )  );
         checkListBestekBinder.forField( cbgDichtingen )
-                .bind( x -> x.getDichtingen().stream().collect( Collectors.toSet()),(x, y)-> x.setDichtingen( y )  );
+                .withNullRepresentation(new HashSet<>())
+                .bind( x -> x.getDichtingen(),(x, y)-> x.setDichtingen( y )  );
         checkListBestekBinder.forField( cbgAantasting )
-                .bind( x -> x.getAantastingen().stream().collect( Collectors.toSet()),(x, y)-> x.setAantastingen( y )  );
+                .withNullRepresentation(new HashSet<>())
+                .bind( x -> x.getAantastingen(),(x, y)-> x.setAantastingen( y )  );
         checkListBestekBinder.forField( cbgLagers )
-                .bind( x -> x.getLagers().stream().collect( Collectors.toSet()),(x, y)-> x.setLagers( y )  );
+                .withNullRepresentation(new HashSet<>())
+                .bind( x -> x.getLagers(),(x, y)-> x.setLagers( y )  );
         checkListBestekBinder.forField( cbgSpaltringen )
-                .bind( x -> x.getSpaltringen().stream().collect( Collectors.toSet()),(x, y)-> x.setSpaltringen( y )  );
+                .withNullRepresentation(new HashSet<>())
+                .bind( x -> x.getSpaltringen(),(x, y)-> x.setSpaltringen( y )  );
         checkListBestekBinder.forField( cbgBinnenwerk )
-                .bind( x -> x.getBinnenwerk().stream().collect( Collectors.toSet()),(x, y)-> x.setBinnenwerk( y )  );
+                .withNullRepresentation(new HashSet<>())
+                .bind( x -> x.getBinnenwerk(),(x, y)-> x.setBinnenwerk( y )  );
         checkListBestekBinder.forField( cbgVuilInPomp )
-                .bind( x -> x.getContaminatie().stream().collect( Collectors.toSet()),(x, y)-> x.setContaminatie( y )  );
+                .withNullRepresentation(new HashSet<>())
+                .bind( x -> x.getContaminatie(),(x, y)-> x.setContaminatie( y )  );
         checkListBestekBinder.forField( cbgStatusPomp )
-                .bind( x -> x.getPompStatus().stream().collect( Collectors.toSet()),(x, y)-> x.setPompStatus( y )  );
+                .withNullRepresentation(new HashSet<>())
+                .bind( x -> x.getPompStatus(),(x, y)-> x.setPompStatus( y )  );
 
         checkListBestekBinder.forField( tfExtraCommentaarWaterInMotor )
+                .withNullRepresentation("")
                 .bind( CheckListBestek::getWaterInOnderdeelCommentaar, CheckListBestek::setWaterInOnderdeelCommentaar );
         checkListBestekBinder.forField( tfCommentaarMotorkabel )
+                .withNullRepresentation("")
                 .bind( CheckListBestek::getMotorKabelCommentaar, CheckListBestek::setMotorKabelCommentaar );
         checkListBestekBinder.forField( tfLagerAsMotorCommentaar )
+                .withNullRepresentation("")
                 .bind( CheckListBestek::getLagersMotorCommentaar, CheckListBestek::setLagersMotorCommentaar );
         checkListBestekBinder.forField( tfLagerVentMotorCommentaar1 )
+                .withNullRepresentation("")
                 .bind( CheckListBestek::getLagersMotorVentilatorCommentaar, CheckListBestek::setLagersMotorVentilatorCommentaar );
         checkListBestekBinder.forField( tfCommentaarPompBinnengebracht )
+                .withNullRepresentation("")
                 .bind( CheckListBestek::getPompBinnengebrachtCommentaar, CheckListBestek::setPompBinnengebrachtCommentaar );
         checkListBestekBinder.forField( tfCommentaarPompDemonteerbaar )
+                .withNullRepresentation("")
                 .bind( CheckListBestek::getStaatPompCommentaar, CheckListBestek::setStaatPompCommentaar );
         checkListBestekBinder.forField( tfPrimaireAsafdichtingCommentaar )
+                .withNullRepresentation("")
                 .bind( CheckListBestek::getAsafdichtingCommentaar, CheckListBestek::setAsafdichtingCommentaar );
         checkListBestekBinder.forField( tfSecundaireAsafdichtingCommentaar )
+                .withNullRepresentation("")
                 .bind( CheckListBestek::getSecundaireAsafdichtingCommentaar, CheckListBestek::setSecundaireAsafdichtingCommentaar );
         checkListBestekBinder.forField( tfPompasCommentaar )
+                .withNullRepresentation("")
                 .bind( CheckListBestek::getPompasCommentaar, CheckListBestek::setPompasCommentaar );
         checkListBestekBinder.forField( tfWaaiersCommentaar )
+                .withNullRepresentation("")
                 .bind( CheckListBestek::getWaaiersCommentaar, CheckListBestek::setWaaiersCommentaar );
         checkListBestekBinder.forField( tfKamersCommentaar )
+                .withNullRepresentation("")
                 .bind( CheckListBestek::getKamersCommentaar, CheckListBestek::setKamersCommentaar );
         checkListBestekBinder.forField( tfDichtingenCommentaar )
+                .withNullRepresentation("")
                 .bind( CheckListBestek::getDichtingenCommentaar, CheckListBestek::setDichtingenCommentaar );
         checkListBestekBinder.forField( tfAantastingCommentaar )
+                .withNullRepresentation("")
                 .bind( CheckListBestek::getAantastingCommentaar, CheckListBestek::setAantastingCommentaar );
         checkListBestekBinder.forField( tfLagersCommentaar )
+                .withNullRepresentation("")
                 .bind( CheckListBestek::getLagersPompCommentaar, CheckListBestek::setLagersPompCommentaar );
         checkListBestekBinder.forField( tfSpaltRingenCommentaar )
+                .withNullRepresentation("")
                 .bind( CheckListBestek::getSpaltRingenCommentaar, CheckListBestek::setSpaltRingenCommentaar );
         checkListBestekBinder.forField( tfPompStatusCommentaar )
+                .withNullRepresentation("")
                 .bind( CheckListBestek::getPompStatusCommentaar, CheckListBestek::setPompStatusCommentaar );
 
         checkListBestekBinder.forField( dateDemontage )
                 .bind( x -> x.getDatumDemontage(), (x,y) -> x.setDatumDemontage( y ) );
         checkListBestekBinder.forField( tfUrenDemontage )
+                .withNullRepresentation("")
                 .bind( x -> x.getAantalUrenDemontage(), (x,y) -> x.setAantalUrenDemontage( y ) );
         checkListBestekBinder.forField( checkbBestekkostenAanrekenen )
+                .withNullRepresentation(false)
                 .bind( x -> x.isBestekKostenAanrekenen(), (x,y) -> x.setBestekKostenAanrekenen( y ) );
 
         checkListBestekBinder.forField( datefHerstelDatum )
@@ -560,29 +846,41 @@ public class CheckListView extends CheckListDesign implements View {
         checkListBestekBinder.forField( dtUitersteHerstelDatum )
                 .bind( x -> x.getUitersteHerstelDatum(), (x,y) -> x.setUitersteHerstelDatum( y ) );
         checkListBestekBinder.forField( tfUrenHerstelling )
+                .withNullRepresentation("")
                 .bind( x -> x.getAantalUrenHerstelling(), (x,y) -> x.setAantalUrenHerstelling( y ) );
         checkListBestekBinder.forField( tfUrenReinigen )
+                .withNullRepresentation("")
                 .bind( x -> x.getAantalUrenReiniging(), (x,y) -> x.setAantalUrenReiniging( y ) );
         detailTicketBinder.forField( checkbHerstellingAfgewerkt )
+                .withNullRepresentation(false)
                 .bind( x -> x.isbPompHersteld(), (x,y) -> x.setbPompHersteld( y ) );
 
         checkListBestekBinder.forField( tfDebiet )
+                .withNullRepresentation("")
                 .bind( x -> x.getMeetresultaatDebiet(), (x,y) -> x.setMeetresultaatDebiet( y ) );
         checkListBestekBinder.forField( tfDruk )
+                .withNullRepresentation("")
                 .bind( x -> x.getMeetresultaatDruk(), (x,y) -> x.setMeetresultaatDruk( y ) );
         checkListBestekBinder.forField( tfDebietVuilWater )
+                .withNullRepresentation("")
                 .bind( x -> x.getDrukTestVuilwaterDruk(), (x,y) -> x.setDrukTestVuilwaterDruk( y ) );
         checkListBestekBinder.forField(checkbGeenNabehandeling)
+                .withNullRepresentation(false)
                 .bind(CheckListBestek::isGnNabehandeling, (x,y)-> x.setGnNabehandeling(y));
         checkListBestekBinder.forField(checkbHerschilderen)
+                .withNullRepresentation(false)
                 .bind(CheckListBestek::isHerschilderen, (x,y)-> x.setHerschilderen(y));
         checkListBestekBinder.forField(checkbZandstralen)
+                .withNullRepresentation(false)
                 .bind(CheckListBestek::isZandstralenEnHerschilderen, (x,y)-> x.setZandstralenEnHerschilderen(y));
         checkListBestekBinder.forField(checkbGeenLogo)
+                .withNullRepresentation(false)
                 .bind(CheckListBestek::isbGeenLogoPlaatsen, (x,y)-> x.setbGeenLogoPlaatsen(y));
         detailTicketBinder.forField(checkbDemontageAfgewerkt)
+                .withNullRepresentation(false)
                 .bind(DetailTicket::isbTeDemonteren, (x,y)-> x.setbTeDemonteren(y));
         detailTicketBinder.forField(checkbDirectTeHerstellen)
+                .withNullRepresentation(false)
                 .bind(DetailTicket::isbDirectTeHerstellen, (x,y)-> x.setbDirectTeHerstellen(y));
 
 
@@ -593,7 +891,6 @@ public class CheckListView extends CheckListDesign implements View {
             mainTicketRepository.save( geselecteerdMainTicket );
         } );
     }
-
 
     private String getProperName(String toConvert) {
         String returnValue = "";

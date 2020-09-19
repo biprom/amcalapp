@@ -10,7 +10,6 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Upload;
-import com.vaadin.ui.Button;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.Grid;
@@ -35,10 +34,8 @@ public class InoxSubDesign extends Panel {
     protected ComboBox<String> cbAantalPersonen;
     protected VerticalLayout vGridLayout;
     protected Grid<com.biprom.bram.backend.data.entity.mongodbEntities.Product> productGrid;
-    protected CheckBox checkbVolledigUitgevoerd;
     protected Upload uploadFoto;
-    protected Button bSave;
-    protected Button buttonBack;
+    protected CheckBox checkbVolledigUitgevoerd;
     protected GridLayout imageGird;
 
     public InoxSubDesign() {

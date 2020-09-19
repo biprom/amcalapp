@@ -1,7 +1,8 @@
 // Global variable overrides. Must be declared before importing Valo.
 
 // Defines the plaintext font size, weight and family. Font size affects general component sizing.
-//$v-font-size: 16px;
+$v-font-size: 20px;
+$font-weight: bold;
 //$v-font-weight: 300;
 //$v-font-family: "Open Sans", sans-serif;
 
@@ -98,22 +99,33 @@ $app-background-image: url('bg.jpg');
     background-color: greenyellow;
   }
 
+  .v-textfield {
+    font-weight: bold;
+    font-size: 20px;
+  }
+
   .v-textfield.my_red_style {
     background: #FF9999;
     font-weight: bold;
-    font-size: 15px;
+    font-size: 20px;
   }
 
   .v-textfield.my_yellow_style {
     background: yellow;
     font-weight: bold;
-    font-size: 15px;
+    font-size: 20px;
   }
 
   .v-textfield.my_green_style {
     background: #E5FFCC;
     font-weight: bold;
-    font-size: 15px;
+    font-size: 20px;
+  }
+
+  .v-textfield.my_orange_style {
+    background: #ffa500;
+    font-weight: bold;
+    font-size: 20px;
   }
 
   .my_bold_style{

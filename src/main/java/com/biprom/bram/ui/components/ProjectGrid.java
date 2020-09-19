@@ -1,5 +1,6 @@
 package com.biprom.bram.ui.components;
 
+import com.biprom.bram.backend.data.entity.CustomPair;
 import com.biprom.bram.backend.data.entity.mongodbEntities.DetailTicket;
 import com.biprom.bram.backend.data.entity.mongodbEntities.MainTicket;
 import com.biprom.bram.backend.data.entity.mongodbEntities.Personeel;
@@ -11,7 +12,6 @@ import com.vaadin.shared.data.sort.SortDirection;
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.ui.*;
 import com.vaadin.ui.renderers.HtmlRenderer;
-import javafx.util.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.util.HtmlUtils;
 import org.vaadin.spring.annotation.PrototypeScope;
@@ -19,7 +19,6 @@ import org.vaadin.spring.annotation.PrototypeScope;
 import javax.annotation.PostConstruct;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.time.temporal.ChronoUnit;
@@ -82,7 +81,7 @@ public class ProjectGrid extends Grid<DetailTicket> {
 			Label label = new Label(detailTicket.getOpdrachtgever());
 			label.setStyleName("h3");
 			return label;
-		});
+		}).setWidth(250);
 
 
 		addComponentColumn( x -> {
@@ -90,7 +89,7 @@ public class ProjectGrid extends Grid<DetailTicket> {
 			button.setStyleName( "primary" );
 			button.setWidth( "100%" );
 			button.setHeight( "100%" );
-			Pair<Boolean, String> lastStatusOfStart =  getLastStatusOfSNStart(x);
+			CustomPair lastStatusOfStart =  getLastStatusOfSNStart(x);
 			if((lastStatusOfStart.getKey() == true)&&(!lastStatusOfStart.getValue().matches( "Gestopt" ))){
 				button.setStyleName( "friendly" );
 			}
@@ -135,7 +134,7 @@ public class ProjectGrid extends Grid<DetailTicket> {
 			button.setStyleName( "primary" );
 			button.setWidth( "100%" );
 			button.setHeight( "100%" );
-			Pair<Boolean, String> lastStatusOfStart =  getLastStatusOfSNStart(x);
+			CustomPair lastStatusOfStart =  getLastStatusOfSNStart(x);
 			button.setStyleName( "primary" );
 //            if(lastStatusOfStart.getKey() == false){
 //                button.setStyleName( "friendly" );
@@ -304,7 +303,7 @@ public class ProjectGrid extends Grid<DetailTicket> {
 		}
 
 
-	private Pair<Boolean, String> getLastStatusOfSNStart(DetailTicket detailTicket) {
+	private CustomPair getLastStatusOfSNStart(DetailTicket detailTicket) {
 
 		laatsteStatusElkeTechniekerSTOP.clear();
 		laatsteStatusElkeTechniekerSTART.clear();
@@ -333,7 +332,7 @@ public class ProjectGrid extends Grid<DetailTicket> {
 				string = string.concat(werkuur.getInlogNaamTechnieker() + " "  );
 			}
 			detailTicket.setLaatsteStatus(string);
-			return new Pair<>(true, string);
+			return new CustomPair(true, string);
 		}
 		if(laatsteStatusElkeTechniekerSTART.size() > 2){
 			String string = "";
@@ -341,7 +340,7 @@ public class ProjectGrid extends Grid<DetailTicket> {
 				string = string.concat(werkuur.getInlogNaamTechnieker() + " "  );
 			}
 			detailTicket.setLaatsteStatus(string);
-			return new Pair<>(true, string);
+			return new CustomPair(true, string);
 		}
 		if(laatsteStatusElkeTechniekerSTART.size() > 1){
 			String string = "";
@@ -349,7 +348,7 @@ public class ProjectGrid extends Grid<DetailTicket> {
 				string = string.concat(werkuur.getInlogNaamTechnieker() + " "  );
 			}
 			detailTicket.setLaatsteStatus(string);
-			return new Pair<>(true, string);
+			return new CustomPair(true, string);
 		}
 		if(laatsteStatusElkeTechniekerSTART.size() > 0){
 			String string = "";
@@ -357,16 +356,27 @@ public class ProjectGrid extends Grid<DetailTicket> {
 				string = string.concat(werkuur.getInlogNaamTechnieker() + " "  );
 			}
 			detailTicket.setLaatsteStatus(string);
-			return new Pair<>(true, string);
+			return new CustomPair(true, string);
 		}
 		if(laatsteStatusElkeTechniekerSTOP.size()>0){
 			detailTicket.setLaatsteStatus("Gestopt");
-			return new Pair<>(true, "Gestopt");
+			return new CustomPair(true, "Gestopt");
 		}
 		else {
 			detailTicket.setLaatsteStatus("Niet Gestart");
-			return new Pair<>(false, "Niet Gestart");
+			return new CustomPair(false, "Niet Gestart");
 		}
+	}
+
+	public void setGeslecteerdPersoneel(Personeel geslecteerdPersoneel) {
+		this.geslecteerdPersoneel = geslecteerdPersoneel;
+	}
+
+	public void setPersoneelButtons(List<Button>personeelButtons){
+		buttonList = personeelButtons;
+	}
+	public void setPersoneelLabels(List<Label>personeelLabels){
+		labelList = personeelLabels;
 	}
 
 

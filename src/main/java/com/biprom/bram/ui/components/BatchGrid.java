@@ -1,5 +1,6 @@
 package com.biprom.bram.ui.components;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
@@ -7,12 +8,14 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
+import com.biprom.bram.backend.data.entity.CustomPair;
 import com.biprom.bram.backend.data.entity.mongodbEntities.DetailTicket;
 import com.biprom.bram.backend.data.entity.mongodbEntities.MainTicket;
 import com.biprom.bram.backend.data.entity.mongodbEntities.Personeel;
@@ -20,12 +23,12 @@ import com.biprom.bram.backend.data.entity.mongodbEntities.WerkUren;
 import com.biprom.bram.backend.mongoRepositories.MainTicketRepository;
 import com.biprom.bram.backend.mongoRepositories.PersoneelRepository;
 import com.biprom.bram.backend.mongoRepositories.WerkUrenRepository;
+import com.biprom.bram.ui.subWindows.CheckPauzeSubWindow;
 import com.vaadin.shared.data.sort.SortDirection;
 import com.vaadin.ui.*;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
-import javafx.util.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.util.HtmlUtils;
 import org.vaadin.spring.annotation.PrototypeScope;
@@ -46,7 +49,11 @@ public class BatchGrid extends Grid<DetailTicket> {
 	@Autowired
 	private PersoneelRepository personeelRepository;
 
+	@Autowired
+	CheckPauzeSubWindow checkPauzeSubWindow;
+
 	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+	DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
 	Column<DetailTicket, String> positieColumn;
 	Column<DetailTicket, CheckBox> zuurbehColumn;
@@ -69,6 +76,8 @@ public class BatchGrid extends Grid<DetailTicket> {
 	List<Button>buttonList;
 
 	Personeel geslecteerdPersoneel;
+
+	WerkUren vorigWerkUur;
 
 	public BatchGrid() {
 
@@ -217,7 +226,7 @@ public class BatchGrid extends Grid<DetailTicket> {
 			button.setStyleName( "primary" );
 			button.setWidth( "100%" );
 			button.setHeight( "100%" );
-			Pair<Boolean, String> lastStatusOfStart =  getLastStatusOfSNStart(x);
+			CustomPair lastStatusOfStart =  getLastStatusOfSNStart(x);
 			if((lastStatusOfStart.getKey() == true)&&(!lastStatusOfStart.getValue().matches( "Gestopt" ))){
 				button.setStyleName( "friendly" );
 			}
@@ -267,7 +276,7 @@ public class BatchGrid extends Grid<DetailTicket> {
 			button.setStyleName( "primary" );
 			button.setWidth( "100%" );
 			button.setHeight( "100%" );
-			Pair<Boolean, String> lastStatusOfStart =  getLastStatusOfSNStart(x);
+			CustomPair lastStatusOfStart =  getLastStatusOfSNStart(x);
 			button.setStyleName( "primary" );
 //            if(lastStatusOfStart.getKey() == false){
 //                button.setStyleName( "friendly" );
@@ -277,32 +286,77 @@ public class BatchGrid extends Grid<DetailTicket> {
 //            }
 			button.addClickListener( e -> {
 				try {
-
-						WerkUren werkUren = new WerkUren();
+					LocalDateTime middag = LocalDateTime.now().withHour(12).withMinute(0);;
+					WerkUren werkUren = new WerkUren();
+					werkUren.setInlogNaamTechnieker(geslecteerdPersoneel.getInlogNaam());
 						switch (gridType) {
 							case "HERSTELLING":
 								werkUren.setOmschrijving("Stop Herstelling : " + x.getamNummer());
+								vorigWerkUur = werkUrenRepository.findByInlogNaamTechnieker(geslecteerdPersoneel.getInlogNaam()).stream().filter(filter -> filter.getStartDatumTijd() != null).filter(filter -> filter.getOmschrijving().contains("Start Herstelling : " + x.getamNummer())).max(Comparator.comparing(WerkUren::getStartDatumTijd)).get();
+								break;
 							case "DEMONTAGE":
 								werkUren.setOmschrijving("Stop Demontage : " + x.getamNummer());
+								vorigWerkUur = werkUrenRepository.findByInlogNaamTechnieker(geslecteerdPersoneel.getInlogNaam()).stream().filter(filter -> filter.getStartDatumTijd() != null).filter(filter -> filter.getOmschrijving().contains("Start Demontage : " + x.getamNummer())).max(Comparator.comparing(WerkUren::getStartDatumTijd)).get();
+								break;
 							case "VOORBEREIDING":
 								werkUren.setOmschrijving("Stop Voorbereiding : " + x.getamNummer());
+								vorigWerkUur = werkUrenRepository.findByInlogNaamTechnieker(geslecteerdPersoneel.getInlogNaam()).stream().filter(filter -> filter.getStartDatumTijd() != null).filter(filter -> filter.getOmschrijving().contains("Start VOORBEREIDING : " + x.getamNummer())).max(Comparator.comparing(WerkUren::getStartDatumTijd)).get();
+								break;
 						}
 
-					werkUren.setInlogNaamTechnieker( geslecteerdPersoneel.getInlogNaam() );
-					werkUren.setStartDatumTijd( LocalDateTime.now() );
-					werkUrenRepository.save( werkUren );
-					Notification.show( "Stop :  " + " " + geslecteerdPersoneel.getInlogNaam() + " om : " + LocalDateTime.now().format( formatter ) );
-					button.setStyleName( "friendly" );
-					getLastStatusOfSNStart( x );
-					buttonList.stream().forEach(y -> y.setStyleName("primary"));
-					labelList.stream().filter(filter -> filter.getId().matches("l"+geslecteerdPersoneel.getInlogNaam())).findFirst().get().setValue(x.getamNummer() + " GESTOPT");
-					this.getDataProvider().refreshAll();
 
-					// deselecteer de technieker
-					geslecteerdPersoneel = null;
+
+					if ((vorigWerkUur.getStartDatumTijd().isBefore(middag)) && (LocalDateTime.now().isAfter(middag))) {
+						//Show pauzecheckerWindow
+						checkPauzeSubWindow.getCheckPauzeView().setLbTijdslot("Van : " + vorigWerkUur.getStartDatumTijd().format(dateTimeFormatter) + "  ->  Tot = " + LocalDateTime.now().format(dateTimeFormatter));
+						checkPauzeSubWindow.getCheckPauzeView().setLbTotaalTijdSlot("Totaaltijd = " + Duration.between(vorigWerkUur.getStartDatumTijd(), LocalDateTime.now()).toMinutes() + " minuten");
+						UI.getCurrent().addWindow(checkPauzeSubWindow);
+						checkPauzeSubWindow.setHeight("600px");
+						checkPauzeSubWindow.setWidth("800");
+						checkPauzeSubWindow.setModal(true);
+						checkPauzeSubWindow.addCloseListener(y -> {
+							if (checkPauzeSubWindow.getCheckPauzeView().getAangepasteEindTijd() != null) {
+								werkUren.setStartDatumTijd(checkPauzeSubWindow.getCheckPauzeView().getAangepasteEindTijd());
+								werkUrenRepository.save(werkUren);
+								button.setStyleName( "friendly" );
+								getLastStatusOfSNStart( x );
+								buttonList.stream().forEach(z -> z.setStyleName("primary"));
+								labelList.stream().filter(filter -> filter.getId().matches("l"+geslecteerdPersoneel.getInlogNaam())).findFirst().get().setValue(x.getamNummer() + " GESTOPT");
+								this.getDataProvider().refreshAll();
+								geslecteerdPersoneel = null;
+							}
+							else {
+								werkUren.setStartDatumTijd(LocalDateTime.now());
+								werkUrenRepository.save(werkUren);
+								button.setStyleName( "friendly" );
+								getLastStatusOfSNStart( x );
+								buttonList.stream().forEach(z -> z.setStyleName("primary"));
+								labelList.stream().filter(filter -> filter.getId().matches("l"+geslecteerdPersoneel.getInlogNaam())).findFirst().get().setValue(x.getamNummer() + " GESTOPT");
+								this.getDataProvider().refreshAll();
+								geslecteerdPersoneel = null;
+							}
+						});
+
+
+					}
+					else{
+						werkUren.setInlogNaamTechnieker( geslecteerdPersoneel.getInlogNaam() );
+						werkUren.setStartDatumTijd( LocalDateTime.now() );
+						werkUrenRepository.save( werkUren );
+						Notification.show( "Stop :  " + " " + geslecteerdPersoneel.getInlogNaam() + " om : " + LocalDateTime.now().format( formatter ) );
+						button.setStyleName( "friendly" );
+						getLastStatusOfSNStart( x );
+						buttonList.stream().forEach(y -> y.setStyleName("primary"));
+						labelList.stream().filter(filter -> filter.getId().matches("l"+geslecteerdPersoneel.getInlogNaam())).findFirst().get().setValue(x.getamNummer() + " GESTOPT");
+						this.getDataProvider().refreshAll();
+
+						// deselecteer de technieker
+						geslecteerdPersoneel = null;
+					}
+
 				}
 				catch (Exception e1){
-					Notification.show( "Gelieve eerst een technieker aan te duiden" );
+					Notification.show( "Gelieve eerst een technieker aan te duiden, of AM te starten" );
 				}
 			} );
 			return button;
@@ -507,7 +561,7 @@ public class BatchGrid extends Grid<DetailTicket> {
 		}
 
 
-	private Pair<Boolean, String> getLastStatusOfSNStart(DetailTicket detailTicket) {
+	private CustomPair getLastStatusOfSNStart(DetailTicket detailTicket) {
 
 		laatsteStatusElkeTechniekerSTOP.clear();
 		laatsteStatusElkeTechniekerSTART.clear();
@@ -536,7 +590,7 @@ public class BatchGrid extends Grid<DetailTicket> {
 				string = string.concat(werkuur.getInlogNaamTechnieker() + " "  );
 			}
 			detailTicket.setLaatsteStatus(string);
-			return new Pair<>(true, string);
+			return new CustomPair(true, string);
 		}
 		if(laatsteStatusElkeTechniekerSTART.size() > 2){
 			String string = "";
@@ -544,7 +598,7 @@ public class BatchGrid extends Grid<DetailTicket> {
 				string = string.concat(werkuur.getInlogNaamTechnieker() + " "  );
 			}
 			detailTicket.setLaatsteStatus(string);
-			return new Pair<>(true, string);
+			return new CustomPair(true, string);
 		}
 		if(laatsteStatusElkeTechniekerSTART.size() > 1){
 			String string = "";
@@ -552,7 +606,7 @@ public class BatchGrid extends Grid<DetailTicket> {
 				string = string.concat(werkuur.getInlogNaamTechnieker() + " "  );
 			}
 			detailTicket.setLaatsteStatus(string);
-			return new Pair<>(true, string);
+			return new CustomPair(true, string);
 		}
 		if(laatsteStatusElkeTechniekerSTART.size() > 0){
 			String string = "";
@@ -560,15 +614,15 @@ public class BatchGrid extends Grid<DetailTicket> {
 				string = string.concat(werkuur.getInlogNaamTechnieker() + " "  );
 			}
 			detailTicket.setLaatsteStatus(string);
-			return new Pair<>(true, string);
+			return new CustomPair(true, string);
 		}
 		if(laatsteStatusElkeTechniekerSTOP.size()>0){
 			detailTicket.setLaatsteStatus("Gestopt");
-			return new Pair<>(true, "Gestopt");
+			return new CustomPair(true, "Gestopt");
 		}
 		else {
 			detailTicket.setLaatsteStatus("Niet Gestart");
-			return new Pair<>(false, "Niet Gestart");
+			return new CustomPair(false, "Niet Gestart");
 		}
 	}
 

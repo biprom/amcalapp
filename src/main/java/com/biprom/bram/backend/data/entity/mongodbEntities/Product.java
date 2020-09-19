@@ -91,6 +91,12 @@ public class Product {
     @JsonIgnore
     private String linkFoto;
 
+    public Product() {
+    }
+
+    public Product(String vageOmschrijving) {
+        this.vageOmschrijving = vageOmschrijving;
+    }
 
     public String getLinkFoto() {
         return linkFoto;
