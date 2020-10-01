@@ -15,7 +15,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 import org.springframework.web.client.RestTemplate;
 
 @Configuration
-@EnableMongoRepositories("com.biprom.bram.backend.mongoRepositories")
+@EnableMongoRepositories("com.biprom.bram.backend")
 public class MongoConfig extends AbstractMongoConfiguration {
 
     @Value("${spring.data.mongodb.uri}")

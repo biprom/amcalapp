@@ -7,17 +7,17 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.biprom.bram.backend.ProductRepository;
+import com.biprom.bram.backend.OldProductRepository;
 import com.biprom.bram.backend.data.entity.Product;
 
 @Service
 public class ProductService extends CrudService<Product> {
 
-	private final ProductRepository productRepository;
+	private final OldProductRepository oldProductRepository;
 
 	@Autowired
-	public ProductService(ProductRepository productRepository) {
-		this.productRepository = productRepository;
+	public ProductService(OldProductRepository oldProductRepository) {
+		this.oldProductRepository = oldProductRepository;
 	}
 
 	@Override
@@ -41,8 +41,8 @@ public class ProductService extends CrudService<Product> {
 	}
 
 	@Override
-	protected ProductRepository getRepository() {
-		return productRepository;
+	protected OldProductRepository getRepository() {
+		return oldProductRepository;
 	}
 
 }

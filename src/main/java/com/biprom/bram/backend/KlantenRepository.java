@@ -1,4 +1,4 @@
-package com.biprom.bram.backend.mongoRepositories;
+package com.biprom.bram.backend;
 
 import com.biprom.bram.backend.data.entity.mongodbEntities.Klanten;
 import org.springframework.data.mongodb.repository.MongoRepository;

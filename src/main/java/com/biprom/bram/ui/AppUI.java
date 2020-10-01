@@ -14,11 +14,13 @@ import com.biprom.bram.app.HasLogger;
 import com.biprom.bram.ui.navigation.NavigationManager;
 import com.biprom.bram.ui.views.AccessDeniedView;
 import com.vaadin.ui.UI;
+import org.springframework.context.annotation.ComponentScan;
 
 @Theme("apptheme")
 @SpringUI
 @Viewport("width=device-width,initial-scale=1.0,user-scalable=no")
 @Title("AmcalApp")
+@ComponentScan
 public class AppUI extends UI implements HasLogger {
 
 	private final SpringViewProvider viewProvider;

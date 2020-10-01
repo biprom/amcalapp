@@ -2,12 +2,11 @@ package com.biprom.bram.ui.components;
 
 import com.biprom.bram.backend.data.entity.CustomPair;
 import com.biprom.bram.backend.data.entity.mongodbEntities.DetailTicket;
-import com.biprom.bram.backend.data.entity.mongodbEntities.MainTicket;
 import com.biprom.bram.backend.data.entity.mongodbEntities.Personeel;
 import com.biprom.bram.backend.data.entity.mongodbEntities.WerkUren;
-import com.biprom.bram.backend.mongoRepositories.MainTicketRepository;
-import com.biprom.bram.backend.mongoRepositories.PersoneelRepository;
-import com.biprom.bram.backend.mongoRepositories.WerkUrenRepository;
+import com.biprom.bram.backend.MainTicketRepository;
+import com.biprom.bram.backend.PersoneelRepository;
+import com.biprom.bram.backend.WerkUrenRepository;
 import com.vaadin.shared.data.sort.SortDirection;
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.ui.*;

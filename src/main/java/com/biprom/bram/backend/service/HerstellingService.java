@@ -1,39 +1,20 @@
 package com.biprom.bram.backend.service;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.transaction.Transactional;
-
 import com.biprom.bram.backend.Enums.Enums;
 import com.biprom.bram.backend.data.entity.mongodbEntities.DetailTicket;
-import com.biprom.bram.backend.data.entity.mongodbEntities.InplanningEntity;
 import com.biprom.bram.backend.data.entity.mongodbEntities.MainTicket;
-import com.biprom.bram.backend.mongoRepositories.MainTicketRepository;
-import com.vaadin.ui.Notification;
+import com.biprom.bram.backend.MainTicketRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.biprom.bram.backend.OrderRepository;
-import com.biprom.bram.backend.data.DashboardData;
-import com.biprom.bram.backend.data.DeliveryStats;
 import com.biprom.bram.backend.data.OrderState;
-import com.biprom.bram.backend.data.entity.HistoryItem;
-import com.biprom.bram.backend.data.entity.Order;
-import com.biprom.bram.backend.data.entity.Product;
-import com.biprom.bram.backend.data.entity.User;
 
 @Service
 public class HerstellingService {
@@ -64,7 +45,7 @@ public class HerstellingService {
 
 		detailTicketListTeHerstellen.clear();
 
-		mainTicketListTeHerstellen = mainTicketRepository.findByDetails_BHerstellingBestekAndDetails_bTeDemonterenAndDetails_bPompHersteld( true, true, false );
+		mainTicketListTeHerstellen = mainTicketRepository.findByDetails_bHerstellingBestekAndDetails_bTeDemonterenAndDetails_bPompHersteld( true, true, false );
 		for (MainTicket mainTicket : mainTicketListTeHerstellen) {
 			List<DetailTicket> detailTicketListFiltered1 = mainTicket.getDetails().stream()
 					.filter( filter -> (getPompStatus( filter ).toString().equals( "ALLEONDERDELENBINNEN" ))
@@ -163,7 +144,7 @@ public class HerstellingService {
 
 	public List<DetailTicket> getAllDetailsToDemontage() {
 		detailTicketListTeDemonteren.clear();
-		List<MainTicket> mainTicketListTeDemonternen = mainTicketRepository.findByDetails_BHerstellingBestekAndDetails_bTeDemonterenAndDetails_bPompHersteld( true, false, false );
+		List<MainTicket> mainTicketListTeDemonternen = mainTicketRepository.findByDetails_bHerstellingBestekAndDetails_bTeDemonterenAndDetails_bPompHersteld( true, false, false );
 		for (MainTicket mainTicket : mainTicketListTeDemonternen) {
 			List<DetailTicket> detailTicketListFiltered = mainTicket.getDetails().stream().filter( filter -> (getPompStatus( filter ).toString().equals( "NIETGESTART" )) && (filter.getamNummer().contains( "AM" )) ).collect( Collectors.toList() );
 			detailTicketListFiltered.stream().forEach( x -> x.setOpdrachtgever( mainTicket.getOpdrachtgever().getBedrijfsNaam() ) );
@@ -178,7 +159,7 @@ public class HerstellingService {
 
 	public List<DetailTicket> getAllDetailsToVoorbereiding() {
 		detailTicketListVoorTeBereiden.clear();
-		List<MainTicket> mainTicketList = mainTicketRepository.findByDetails_bHerstelBestekAfgewerktAndDetailsBHerstellingBestek( false, true );
+		List<MainTicket> mainTicketList = mainTicketRepository.findByDetails_bHerstelBestekAfgewerktAndDetails_bHerstellingBestek( false, true );
 		for (MainTicket mainTicket : mainTicketList) {
 			for (DetailTicket detailTicket : mainTicket.getDetails()) {
 				if (detailTicket.isbHerstellingBestek() && detailTicket.isbAkkoordKlant() && !detailTicket.isbHerstelBestekAfgewerkt() && !detailTicket.isOpdrachtAfgewerkt()) {
@@ -203,7 +184,7 @@ public class HerstellingService {
 	public List<DetailTicket> getAllDetailsToInox() {
 
 		inoxEntityList.clear();
-		List<MainTicket> mainTicketList = mainTicketRepository.findByDetails_OpdrachtAfgewerktAndDetailsBProject( false, true );
+		List<MainTicket> mainTicketList = mainTicketRepository.findByDetails_OpdrachtAfgewerktAndDetails_bProject( false, true );
 		for (MainTicket mainTicket : mainTicketList) {
 			for(DetailTicket detailTicket : mainTicket.getDetails()){
 				if((detailTicket.getamNummer().startsWith("IN"))&&(detailTicket.isOpdrachtAfgewerkt() == false)){

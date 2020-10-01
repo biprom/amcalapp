@@ -1,15 +1,22 @@
 package com.biprom.bram.backend;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.biprom.bram.backend.data.entity.Product;
+import com.biprom.bram.backend.data.entity.mongodbEntities.Product;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
-public interface ProductRepository extends JpaRepository<Product, Long> {
+import java.util.List;
 
-	Page<Product> findByNameLikeIgnoreCase(String name, Pageable page);
 
-	int countByNameLikeIgnoreCase(String name);
+public interface ProductRepository extends MongoRepository<Product, String> {
+
+    List<Product> findAllByArtikelNummerMatchesRegex(String msg);
+    List<Product> findByOmschrijvingArtikelFabrikantMatchesRegex(String msg);
+    List<Product> findByOmschrijvingArtikelFabrikantContains(String msg);
+
+    List<Product> findByArtikelNummerContainsIgnoreCase(String artikelNummer);
+    List<Product> findByVageOmschrijvingContainsIgnoreCase(String vageOmschrijving);
+    List<Product> findByOmschrijvingArtikelFabrikantContainsIgnoreCase(String fabrieksomschrijving);
+    List<Product> findByEigenOmschrijvingContainsIgnoreCase(String fabrieksomschrijving);
+
 
 }

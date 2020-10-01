@@ -7,12 +7,11 @@ import com.biprom.bram.backend.data.entity.mongodbEntities.CheckListBestek;
 import com.biprom.bram.backend.data.entity.mongodbEntities.DetailTicket;
 import com.biprom.bram.backend.data.entity.mongodbEntities.MainTicket;
 import com.biprom.bram.backend.data.entity.mongodbEntities.Product;
-import com.biprom.bram.backend.mongoRepositories.MainTicketRepository;
-import com.biprom.bram.backend.mongoRepositories.PersoneelRepository;
+import com.biprom.bram.backend.MainTicketRepository;
+import com.biprom.bram.backend.PersoneelRepository;
 import com.biprom.bram.backend.service.GridFS.GridFSService;
 import com.biprom.bram.ui.views.CheckListDesign;
 import com.vaadin.data.Binder;
-import com.vaadin.data.HasValue;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.FileResource;
@@ -607,7 +606,23 @@ public class CheckListView extends CheckListDesign implements View {
                 .bind( x -> x.getGedemonteerdDoorList().stream().collect( Collectors.toSet()),(x, y)-> x.setGedemonteerdDoorList( y.stream().collect( Collectors.toList()) )  );
         checkListBestekBinder.forField( checkbGroupTechniekersHersteld )
                 .withNullRepresentation(new HashSet<>())
-                .bind( x -> x.getHersteldDoorList().stream().collect( Collectors.toSet()),(x, y)-> x.setHersteldDoorList( y.stream().collect( Collectors.toList()) )  );
+                .bind( x -> {
+                    if(x.getHersteldDoorList() != null){
+                        return x.getHersteldDoorList().stream().collect( Collectors.toSet());
+                    }
+                    else{
+                        return new HashSet<>();
+                    }
+                },(x, y)-> x.setHersteldDoorList( y.stream().collect( Collectors.toList()) )  ); checkListBestekBinder.forField( checkbGroupTechniekersHersteld )
+                .withNullRepresentation(new HashSet<>())
+                .bind( x -> {
+                    if(x.getHersteldDoorList() != null){
+                        return x.getHersteldDoorList().stream().collect( Collectors.toSet());
+                    }
+                    else{
+                        return new HashSet<>();
+                    }
+                },(x, y)-> x.setHersteldDoorList( y.stream().collect( Collectors.toList()) )  );
         checkListBestekBinder.forField( cbgEUPallet )
                 .withNullRepresentation(new HashSet<>())
                 .bind(x -> x.getBinnengebrachtOp(),(x,y) -> x.setBinnengebrachtOp( y ) );

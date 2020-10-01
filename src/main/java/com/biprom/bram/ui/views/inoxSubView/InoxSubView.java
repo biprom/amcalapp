@@ -3,11 +3,10 @@ package com.biprom.bram.ui.views.inoxSubView;
 import com.biprom.bram.app.security.SecurityUtils;
 import com.biprom.bram.backend.Upload.LineBreakCounter;
 import com.biprom.bram.backend.data.entity.mongodbEntities.*;
-import com.biprom.bram.backend.mongoRepositories.MainTicketRepository;
-import com.biprom.bram.backend.mongoRepositories.PersoneelRepository;
+import com.biprom.bram.backend.MainTicketRepository;
+import com.biprom.bram.backend.PersoneelRepository;
 import com.biprom.bram.backend.service.GridFS.GridFSService;
 import com.biprom.bram.backend.service.UserService;
-import com.mongodb.gridfs.GridFSDBFile;
 import com.vaadin.data.Binder;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
@@ -20,16 +19,12 @@ import com.vaadin.ui.*;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 
 import java.io.File;
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @SpringComponent
 @UIScope

@@ -1,4 +1,4 @@
-package com.biprom.bram.backend.mongoRepositories;
+package com.biprom.bram.backend;
 
 import com.biprom.bram.backend.data.entity.mongodbEntities.MainTicket;
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -40,8 +40,8 @@ public interface MainTicketRepository extends MongoRepository<MainTicket, String
 
 
         List<MainTicket> findByDetails_OpdrachtAfgewerktAndDetailsBInterventie(boolean afgewerkt, boolean interventie);
-        List<MainTicket> findByDetails_OpdrachtAfgewerktAndDetailsBProject(boolean afgewerkt, boolean project);
-        List<MainTicket> findByDetails_bHerstelBestekAfgewerktAndDetailsBHerstellingBestek(boolean bestekAfgewerkt, boolean herstellingBestek);
+        List<MainTicket> findByDetails_OpdrachtAfgewerktAndDetails_bProject(boolean afgewerkt, boolean project);
+        List<MainTicket> findByDetails_bHerstelBestekAfgewerktAndDetails_bHerstellingBestek(boolean bestekAfgewerkt, boolean herstellingBestek);
 
         //Zoekopdracht voor urenregistratie
         List<MainTicket> findByDetails_CheckListBestek_GedemonteerdDoorList_InlogNaam(String inlognaam);
@@ -59,7 +59,7 @@ public interface MainTicketRepository extends MongoRepository<MainTicket, String
         List<MainTicket> findByDetails_BInterventie(boolean interventie);
         List<MainTicket> findByDetails_BHerstellingBestek(boolean herstellingBestek);
 
-        List<MainTicket> findByDetails_BHerstellingBestekAndDetails_bTeDemonterenAndDetails_bPompHersteld(boolean herstellingBestek, boolean gedemonteerd, boolean pompHersteld);
+        List<MainTicket> findByDetails_bHerstellingBestekAndDetails_bTeDemonterenAndDetails_bPompHersteld(boolean herstellingBestek, boolean gedemonteerd, boolean pompHersteld);
         List<MainTicket> findByDetails_BHerstellingBestekAndDetails_bAkkoordKlantAndDetails_bPompHersteldAndDetails_bAlleOnderdelenBinnen(boolean herstellingBestek, boolean bestellingGoedgekeurd, boolean pompHersteld, boolean alleOnderdelenBinnen);
 
         //grafiek Techniekers mainview

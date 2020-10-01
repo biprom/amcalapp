@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Random;
 
 import com.biprom.bram.backend.data.entity.mongodbEntities.Personeel;
-import com.biprom.bram.backend.mongoRepositories.PersoneelRepository;
+import com.biprom.bram.backend.PersoneelRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -18,7 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import com.vaadin.spring.annotation.SpringComponent;
 import com.biprom.bram.backend.OrderRepository;
 import com.biprom.bram.backend.PickupLocationRepository;
-import com.biprom.bram.backend.ProductRepository;
+import com.biprom.bram.backend.OldProductRepository;
 import com.biprom.bram.backend.UserRepository;
 import com.biprom.bram.backend.data.OrderState;
 import com.biprom.bram.backend.data.Role;
@@ -57,8 +57,8 @@ public class DataGenerator implements HasLogger {
 
 	@Bean
 	public CommandLineRunner loadData(OrderRepository orderRepository, UserRepository userRepository,
-			ProductRepository productRepository, PickupLocationRepository pickupLocationRepository,
-			PasswordEncoder passwordEncoder) {
+									  OldProductRepository oldProductRepository, PickupLocationRepository pickupLocationRepository,
+									  PasswordEncoder passwordEncoder) {
 		return args -> {
 			if (hasData(userRepository)) {
 				getLogger().info("Using existing database");
@@ -69,7 +69,7 @@ public class DataGenerator implements HasLogger {
 			getLogger().info("... generating users");
 			createUsers(userRepository, passwordEncoder);
 			getLogger().info("... generating products");
-			createProducts(productRepository);
+			createProducts(oldProductRepository);
 			getLogger().info("... generating pickup locations");
 			createPickupLocations(pickupLocationRepository);
 			getLogger().info("... generating orders");
@@ -294,13 +294,13 @@ public class DataGenerator implements HasLogger {
 		pickupLocations.add(pickupLocationRepository.save(bakery));
 	}
 
-	private void createProducts(ProductRepository productRepository) {
+	private void createProducts(OldProductRepository oldProductRepository) {
 		for (int i = 0; i < 10; i++) {
 			Product product = new Product();
 			product.setName(getRandomProductName());
 			double doublePrice = 2.0 + random.nextDouble() * 100.0;
 			product.setPrice((int) (doublePrice * 100.0));
-			products.add(productRepository.save(product));
+			products.add(oldProductRepository.save(product));
 		}
 	}
 

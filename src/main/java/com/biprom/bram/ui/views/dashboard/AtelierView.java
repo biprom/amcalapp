@@ -1,6 +1,5 @@
 package com.biprom.bram.ui.views.dashboard;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -12,8 +11,8 @@ import javax.annotation.PostConstruct;
 import com.biprom.bram.backend.data.entity.mongodbEntities.DetailTicket;
 import com.biprom.bram.backend.data.entity.mongodbEntities.MainTicket;
 import com.biprom.bram.backend.data.entity.mongodbEntities.Personeel;
-import com.biprom.bram.backend.mongoRepositories.MainTicketRepository;
-import com.biprom.bram.backend.mongoRepositories.PersoneelRepository;
+import com.biprom.bram.backend.MainTicketRepository;
+import com.biprom.bram.backend.PersoneelRepository;
 import com.biprom.bram.ui.components.HerstellingDataProvider;
 import com.biprom.bram.ui.components.ProjectGrid;
 import com.biprom.bram.ui.views.checkList.CheckListView;
