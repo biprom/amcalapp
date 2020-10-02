@@ -12,7 +12,7 @@ import org.springframework.security.config.annotation.web.configurers.FormLoginC
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.biprom.bram.app.Application;
+import com.biprom.bram.Application;
 import com.biprom.bram.backend.data.Role;
 
 @EnableWebSecurity

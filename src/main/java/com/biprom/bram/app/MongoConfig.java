@@ -14,7 +14,6 @@ import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.web.client.RestTemplate;
 
-@Configuration
 @EnableMongoRepositories("com.biprom.bram.backend")
 public class MongoConfig extends AbstractMongoConfiguration {
 

@@ -1,25 +1,12 @@
-package com.biprom.bram.app;
+package com.biprom.bram;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.vaadin.spring.events.annotation.EnableEventBus;
 
-import com.biprom.bram.app.security.SecurityConfig;
-import com.biprom.bram.backend.OrderRepository;
-import com.biprom.bram.backend.data.entity.Order;
-import com.biprom.bram.backend.service.UserService;
-import com.biprom.bram.backend.util.LocalDateJpaConverter;
-import com.biprom.bram.ui.AppUI;
 
-@SpringBootApplication(scanBasePackageClasses = { AppUI.class, Application.class, UserService.class,
-		SecurityConfig.class })
-@EnableJpaRepositories(basePackageClasses = { OrderRepository.class })
-@EntityScan(basePackageClasses = { Order.class, LocalDateJpaConverter.class })
-@EnableEventBus
+@SpringBootApplication
 public class Application extends SpringBootServletInitializer {
 
 	public static final String APP_URL = "/";

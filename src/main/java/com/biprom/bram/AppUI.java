@@ -1,5 +1,7 @@
-package com.biprom.bram.ui;
+package com.biprom.bram;
 
+import com.biprom.bram.ui.ChartsTheme;
+import com.biprom.bram.ui.MainView;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.addon.charts.ChartOptions;
@@ -20,7 +22,8 @@ import org.springframework.context.annotation.ComponentScan;
 @SpringUI
 @Viewport("width=device-width,initial-scale=1.0,user-scalable=no")
 @Title("AmcalApp")
-@ComponentScan
+@ComponentScan("com.biprom.bram")
+
 public class AppUI extends UI implements HasLogger {
 
 	private final SpringViewProvider viewProvider;

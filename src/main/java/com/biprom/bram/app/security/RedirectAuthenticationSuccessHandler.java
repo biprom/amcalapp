@@ -13,7 +13,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.web.context.annotation.ApplicationScope;
 
 import com.vaadin.spring.annotation.SpringComponent;
-import com.biprom.bram.app.Application;
+import com.biprom.bram.Application;
 
 /**
  * Redirects to the application after successful authentication.
