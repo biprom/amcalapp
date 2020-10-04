@@ -325,6 +325,7 @@ public class DataGenerator implements HasLogger {
 	private void createUsers(UserRepository userRepository, PasswordEncoder passwordEncoder) {
 		List<Personeel>personeelList = personeelRepository.findAll();
 		for(Personeel personeel : personeelList){
+			System.out.println("user : " + personeel.getInlogNaam() + " is aangemaakt");
 			User user = new User(personeel.getInlogNaam(), personeel.getVoorNaam()+ " " + personeel.getAchterNaam(), passwordEncoder.encode(personeel.getInlogNaam()), Role.ADMIN);
 			user.setLocked(true);
 			userRepository.save(user);
